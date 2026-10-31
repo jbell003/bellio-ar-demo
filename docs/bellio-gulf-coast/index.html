@@ -1,34 +1,68 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow"><title>Bellio Gulf Coast</title>
+<link rel="icon" href="data:,">
 <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<style>html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:system-ui,sans-serif}
-#start{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:rgba(0,20,40,.92);color:#fff;text-align:center;padding:20px}
-#start button{font-size:22px;padding:18px 32px;border-radius:14px;border:0;background:#ffb703;font-weight:700}
+<style>
+/* NOTE: no background on html/body — MindAR puts the camera <video> at z-index:-2, and an opaque body background paints over it (black screen). */
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,sans-serif}
+.ov{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:rgba(0,20,40,.94);color:#fff;text-align:center;padding:24px;box-sizing:border-box}
+.ov button{font-size:20px;padding:16px 30px;border-radius:14px;border:0;background:#ffb703;font-weight:700}
+.hide{display:none!important}
+#status{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:7;background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:14px;font-size:13px}
 #hint{position:fixed;bottom:16px;width:100%;text-align:center;color:#fff;font-size:15px;z-index:5;text-shadow:0 0 4px #000}
-#snd,#link{position:fixed;top:12px;z-index:6;padding:8px 14px;border-radius:20px;border:0;background:rgba(255,255,255,.9);font-weight:600;display:none;text-decoration:none;color:#000}
-#snd{left:12px}#link{right:12px}</style>
+#snd,#link{position:fixed;top:48px;z-index:6;padding:8px 14px;border-radius:20px;border:0;background:rgba(255,255,255,.9);font-weight:600;text-decoration:none;color:#000}
+#snd{left:12px}#link{right:12px}
+#dbg{position:fixed;left:0;right:0;bottom:0;max-height:40%;overflow:auto;z-index:20;background:rgba(0,0,0,.8);color:#0f0;font:11px monospace;white-space:pre-wrap;padding:6px}
+</style>
 </head><body>
-<div id="start"><h2>Bellio Gulf Coast</h2><button id="go">Tap to start</button><small>Allow camera access, then point at the photo.</small></div>
-<div id="hint">Point your camera at the Bellio Gulf Coast postcard</div><button id="snd">🔇 Tap for sound</button><a id="link" href="" target="_blank" rel="noopener">Learn more</a>
-<a-scene id="scene" mindar-image="imageTargetSrc: target.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001" color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
- <a-assets><video id="vid" src="video.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"></video></a-assets>
+<div id="start" class="ov"><h2>Bellio Gulf Coast</h2><button id="go">Tap to start</button><small>Allow camera access, then point at the printed photo.</small></div>
+<div id="err" class="ov hide"><h2>Camera problem</h2><p id="errmsg"></p><button id="retry">Try again</button></div>
+<div id="status" class="hide"></div>
+<div id="hint" class="hide">Point your camera at the Bellio Gulf Coast postcard</div><button id="snd" class="hide">🔇 Tap for sound</button><a id="link" class="hide" href="" target="_blank" rel="noopener">Learn more</a>
+<a-scene id="scene" mindar-image="imageTargetSrc: target.mind; autoStart: false; uiScanning: no; uiLoading: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001" color-space="sRGB" renderer="colorManagement: true; alpha: true" background="transparent: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
+ <a-assets timeout="3000"><video id="vid" src="video.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video></a-assets>
  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
  <a-entity id="target" mindar-image-target="targetIndex: 0">
   <a-video src="#vid" width="1" height="0.6667" position="0 0 0.01"></a-video>
  </a-entity>
 </a-scene>
 <script>
-const v=document.getElementById('vid'),hint=document.getElementById('hint'),snd=document.getElementById('snd'),link=document.getElementById('link');
-const showSnd=()=>{snd.style.display=v.muted?'block':'none'};
-const play=()=>v.play().catch(()=>{v.muted=true;showSnd();return v.play();});
-document.getElementById('go').onclick=async()=>{
- document.getElementById('start').remove();
- try{await v.play();v.pause();}catch(e){v.muted=true;}   // iOS audio unlock in the tap; muted fallback
- showSnd(); document.getElementById('scene').systems['mindar-image-system'].start();
-};
-snd.onclick=()=>{v.muted=false;v.play().catch(()=>{});showSnd();};
-const t=document.getElementById('target');
-t.addEventListener('targetFound',()=>{hint.style.display='none';if(link.getAttribute('href'))link.style.display='block';play();});
-t.addEventListener('targetLost',()=>{hint.style.display='';v.pause();});
+const $=id=>document.getElementById(id), v=$('vid'), scene=$('scene'), t=$('target');
+const DEBUG=/[?&]debug=1/.test(location.search);
+const dbg=(...a)=>{if(!DEBUG)return;let d=$('dbg');if(!d){d=document.createElement('div');d.id='dbg';document.body.appendChild(d);}d.textContent+=a.join(' ')+'\n';d.scrollTop=1e9;};
+if(DEBUG){['log','warn','error'].forEach(k=>{const o=console[k];console[k]=(...a)=>{dbg(k+':',...a.map(String));o.apply(console,a);};});
+ addEventListener('error',e=>dbg('ERROR:',e.message));addEventListener('unhandledrejection',e=>dbg('REJECT:',e.reason));}
+const status=s=>{const e=$('status');e.textContent=s;e.classList.toggle('hide',!s);dbg('status:',s);};
+const ua=navigator.userAgent, inApp=/FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|LinkedInApp|Twitter|GSA\/|; wv\)/i.test(ua);
+function fail(msg){status('');$('errmsg').innerHTML=msg;$('err').classList.remove('hide');}
+const openMsg='Open this page in <b>Safari</b> (iPhone) or <b>Chrome</b> (Android): tap ⋯ / Share → “Open in browser”.';
+function camHelp(e){const n=(e&&e.name)||'';
+ if(!window.isSecureContext)return 'This page must be opened over https://.';
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return 'This browser can’t use the camera. '+openMsg;
+ if(n==='NotAllowedError'||n==='SecurityError')return 'Camera permission was denied. Allow camera for this site (iPhone: Settings → Safari → Camera → Allow; Android: tap the 🔒 icon → Permissions) and try again.'+(inApp?'<br><br>'+openMsg:'');
+ if(n==='NotFoundError'||n==='OverconstrainedError')return 'No camera found on this device.';
+ if(n==='NotReadableError')return 'The camera is in use by another app. Close it and try again.';
+ return 'Couldn’t start the camera'+(n?' ('+n+')':'')+'. '+(inApp?openMsg:'Try reloading, or open in Safari/Chrome.');}
+let ready=false; scene.addEventListener('loaded',()=>{ready=true;dbg('scene loaded');});
+scene.addEventListener('arReady',()=>{status('Point at the photo');$('hint').classList.remove('hide');setTimeout(()=>status(''),2500);});
+scene.addEventListener('arError',e=>{dbg('arError',JSON.stringify(e.detail));fail(camHelp(window._camErr));});
+async function start(){
+ $('start').classList.add('hide');$('err').classList.add('hide');status('Starting camera…');
+ if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return fail(camHelp());
+ // Preflight: ask for the camera inside the tap (iOS gesture), so we can show a precise error. Stream is released; MindAR reopens it.
+ try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});s.getTracks().forEach(x=>x.stop());}
+ catch(e){window._camErr=e;dbg('gUM',e.name,e.message);return fail(camHelp(e));}
+ v.muted=false;try{await v.play();v.pause();}catch(e){v.muted=true;}  // unlock audio in the gesture; muted fallback
+ if(!ready)await new Promise(r=>scene.addEventListener('loaded',r,{once:true}));
+ status('Loading AR…');
+ try{await scene.systems['mindar-image-system'].start();}catch(e){dbg('start',e);return fail(camHelp(e));}
+}
+$('go').onclick=start;
+$('retry').onclick=()=>{try{scene.systems['mindar-image-system'].stop();}catch(e){}start();};
+const showSnd=()=>$('snd').classList.toggle('hide',!v.muted);
+$('snd').onclick=()=>{v.muted=false;v.play().catch(()=>{});showSnd();};
+t.addEventListener('targetFound',()=>{$('hint').classList.add('hide');if($('link').getAttribute('href'))$('link').classList.remove('hide');v.play().catch(()=>{v.muted=true;v.play();}).finally(showSnd);});
+t.addEventListener('targetLost',()=>{$('hint').classList.remove('hide');v.pause();});
+if(inApp)dbg('in-app browser detected');
 </script></body></html>

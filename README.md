@@ -41,4 +41,4 @@ Print/show `clients/<slug>/target.jpg` on paper or another screen and point the 
 ## Target image quality (most important)
 MindAR tracks corners/texture. Good: busy, high-contrast detail spread across the whole image, non-repeating, matte print. Bad: big flat areas, a single letter/logo on plain background, repeating patterns, glossy finishes, fabric.
 `build.js` prints `matchingPoints` / `trackingPoints` per client (also in `docs/<slug>/stats.json`). Rough guide from our tests: trackingPoints < ~25 = weak; 40+ = good. If weak, add a textured border/background to the printed design (see `clients/demo-border`) — the printed piece must match the target image.
-`scripts/make-placeholders.js` regenerates the sample postcard and bordered tile.
+`scripts/make-placeholders.js` regenerates the sample Bellio Gulf Coast postcard (`clients/bellio-gulf-coast`) and bordered tile.

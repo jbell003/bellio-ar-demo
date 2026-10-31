@@ -1,0 +1,18 @@
+{
+  "name": "Haid Electric – Catch the Lightning",
+  "type": "game",
+  "targetFrom": "haid-electric",
+  "hint": "Point your camera at the Haid Electric logo",
+  "game": {
+    "title": "Catch the Lightning",
+    "itemName": "lightning bolts",
+    "emoji": "⚡",
+    "items": [{ "shape": "bolt", "color": "#ffe600" }, { "shape": "bolt", "color": "#4cc9f0" }],
+    "count": 6,
+    "duration": 20,
+    "pointsPerTap": 5,
+    "colors": { "accent": "#ffe600", "text": "#111", "bg": "rgba(30,30,30,.94)" },
+    "ctaLabel": "Call Haid Electric",
+    "ctaLink": "tel:+18508328397"
+  }
+}

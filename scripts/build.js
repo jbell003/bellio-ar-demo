@@ -9,14 +9,16 @@ const all = fs.readdirSync(CLIENTS).filter(d => fs.statSync(path.join(CLIENTS, d
 const slugs = args.filter(a => !a.startsWith('--')); const list = slugs.length ? slugs : all;
 const { baseUrl } = config(); const tpl = fs.readFileSync(path.join(ROOT, 'templates/viewer.html'), 'utf8');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-fs.mkdirSync(path.join(OUT, 'qr'), { recursive: true }); fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
+fs.mkdirSync(path.join(OUT, 'qr'), { recursive: true }); fs.copyFileSync(path.join(ROOT, 'templates/game.js'), path.join(OUT, 'game.js')); fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 const report = {};
 for (const slug of list) {
   const src = path.join(CLIENTS, slug), dst = path.join(OUT, slug);
-  const img = ['target.jpg', 'target.png'].map(f => path.join(src, f)).find(fs.existsSync);
-  const vid = path.join(src, 'video.mp4');
-  if (!img || !fs.existsSync(vid)) { console.error(`[${slug}] missing target.jpg/png or video.mp4 — skipped`); process.exitCode = 1; continue; }
   const meta = fs.existsSync(path.join(src, 'client.json')) ? JSON.parse(fs.readFileSync(path.join(src, 'client.json'), 'utf8')) : {};
+  if (meta.publish === false) { console.log(`[${slug}] publish:false — skipped`); continue; }
+  const tdir = meta.targetFrom ? path.join(CLIENTS, meta.targetFrom) : src; // reuse another client's target image/.mind
+  const img = ['target.jpg', 'target.png'].map(f => path.join(tdir, f)).find(fs.existsSync);
+  const vid = path.join(src, 'video.mp4'), hasVid = fs.existsSync(vid);
+  if (!img || (!hasVid && meta.type !== 'game')) { console.error(`[${slug}] missing target image or video.mp4 — skipped`); process.exitCode = 1; continue; }
   fs.mkdirSync(dst, { recursive: true });
   const mind = path.join(dst, 'target.mind'); const image = await loadImage(img);
   let stats = meta._stats;
@@ -29,10 +31,13 @@ for (const slug of list) {
               trackingPoints: d.trackingData.reduce((n, t) => n + t.points.length, 0) };
     fs.writeFileSync(path.join(dst, 'stats.json'), JSON.stringify(stats, null, 2)); console.log('done', stats);
   } else stats = JSON.parse(fs.readFileSync(path.join(dst, 'stats.json'), 'utf8'));
-  fs.copyFileSync(vid, path.join(dst, 'video.mp4'));
+  if (hasVid) fs.copyFileSync(vid, path.join(dst, 'video.mp4'));
   const aspect = image.height / image.width; const url = `${baseUrl}/${slug}/`;
   const html = tpl.replaceAll('{{NAME}}', esc(meta.name || 'Bellio Gulf Coast AR')).replaceAll('{{ASPECT}}', aspect.toFixed(4))
     .replaceAll('{{LINK}}', esc(meta.link || '')).replaceAll('{{LINKTEXT}}', esc(meta.linkText || 'Learn more'))
+    .replaceAll('{{VIDEO_ASSET}}', hasVid ? '<video id="vid" src="video.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>' : '')
+    .replaceAll('{{VIDEO_PLANE}}', hasVid ? `  <a-video src="#vid" width="1" height="${aspect.toFixed(4)}" position="0 0 0.01"></a-video>` : '')
+    .replace('{{GAME}}', () => meta.type === 'game' ? JSON.stringify({ ...meta.game, aspect }).replace(/</g, '\\u003c') : 'null')
     .replaceAll('{{HINT}}', esc(meta.hint || 'Point your camera at the printed photo'));
   fs.writeFileSync(path.join(dst, 'index.html'), html);
   const qr = path.join(OUT, 'qr', `${slug}.png`);

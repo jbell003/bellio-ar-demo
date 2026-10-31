@@ -1,0 +1,18 @@
+{
+  "name": "Bellio Gulf Coast – Beach Treasure",
+  "type": "game",
+  "targetFrom": "bellio-gulf-coast",
+  "hint": "Point your camera at the Bellio Gulf Coast postcard",
+  "game": {
+    "title": "Beach Treasure Hunt",
+    "itemName": "coins & shells",
+    "emoji": "🪙",
+    "items": [{ "shape": "coin", "color": "#ffd166" }, { "shape": "shell", "color": "#f4a261" }, { "shape": "coin", "color": "#ffb703" }],
+    "count": 6,
+    "duration": 20,
+    "pointsPerTap": 10,
+    "colors": { "accent": "#ffb703", "text": "#023047", "bg": "rgba(2,48,71,.94)" },
+    "ctaLabel": "Get AR for your business",
+    "ctaLink": "https://jbell003.github.io/bellio-ar-demo/bellio-gulf-coast/"
+  }
+}

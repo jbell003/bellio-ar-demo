@@ -42,3 +42,28 @@ Print/show `clients/<slug>/target.jpg` on paper or another screen and point the 
 MindAR tracks corners/texture. Good: busy, high-contrast detail spread across the whole image, non-repeating, matte print. Bad: big flat areas, a single letter/logo on plain background, repeating patterns, glossy finishes, fabric.
 `build.js` prints `matchingPoints` / `trackingPoints` per client (also in `docs/<slug>/stats.json`). Rough guide from our tests: trackingPoints < ~25 = weak; 40+ = good. If weak, add a textured border/background to the printed design (see `clients/demo-border`) — the printed piece must match the target image.
 `scripts/make-placeholders.js` regenerates the sample Bellio Gulf Coast postcard (`clients/bellio-gulf-coast`) and bordered tile.
+
+## Mini-game clients (`type: "game"`)
+When the target is detected, light 3D items (A-Frame primitives: coin, shell, bolt, star, gem, sphere) pop up and bob above the card. Tap them for points; a HUD shows score + countdown, then a results screen with **Play again** and a call-to-action button. No video is needed; one small shared `docs/game.js`.
+
+Example `clients/bellio-gulf-coast-game/client.json` (reuses the postcard target via `targetFrom`, so the same print works for both):
+```json
+{ "name": "Bellio Gulf Coast – Beach Treasure", "type": "game", "targetFrom": "bellio-gulf-coast",
+  "game": { "title": "Beach Treasure Hunt", "itemName": "coins & shells", "emoji": "🪙",
+    "items": [{ "shape": "coin", "color": "#ffd166" }, { "shape": "shell", "color": "#f4a261" }],
+    "count": 6, "duration": 20, "pointsPerTap": 10,
+    "colors": { "accent": "#ffb703", "text": "#023047", "bg": "rgba(2,48,71,.94)" },
+    "ctaLabel": "Get AR for your business", "ctaLink": "https://…" } }
+```
+**Rebrand for a client:** copy that folder to `clients/<new-slug>-game/`, change `targetFrom` (or drop it and add a `target.jpg`), `title`, `itemName`, `emoji`, item `shape`/`color`, `colors.accent/bg/text`, and `ctaLabel`/`ctaLink` (`tel:+1…`, `https://…`, `mailto:`), then `npm run build`. Or in one command:
+```
+node scripts/add-client.js acme-game - --type game --target-from acme --title "Catch the Lightning" \
+  --item-name "lightning bolts" --emoji ⚡ --shape bolt --color "#ffe600,#4cc9f0" --duration 20 --points 5 \
+  --accent "#ffe600" --cta-label "Call Acme" --cta-link tel:+18505550100
+```
+Set `"publish": false` in any client.json to keep it out of `docs/`.
+
+## Troubleshooting (black screen etc.)
+- Never put a background on `html`/`body` in the viewer: MindAR draws the camera `<video>` at `z-index:-2`, and an opaque body background hides it (this was the original black-screen bug).
+- Open the page in **Safari (iPhone) or Chrome (Android)**. Built-in browsers in Instagram/Facebook/some QR-scanner apps often block the camera; the page detects these and says so.
+- Add `?debug=1` to the URL for an on-screen log.

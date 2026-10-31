@@ -28,7 +28,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,
  </a-entity>
 </a-scene>
 <script>
-const $=id=>document.getElementById(id), v=$('vid'), scene=$('scene'), t=$('target');
+const $=id=>document.getElementById(id), v=$('vid')||Object.assign(document.createElement('video'),{none:true}), scene=$('scene'), t=$('target');
 const DEBUG=/[?&]debug=1/.test(location.search);
 const dbg=(...a)=>{if(!DEBUG)return;let d=$('dbg');if(!d){d=document.createElement('div');d.id='dbg';document.body.appendChild(d);}d.textContent+=a.join(' ')+'\n';d.scrollTop=1e9;};
 if(DEBUG){['log','warn','error'].forEach(k=>{const o=console[k];console[k]=(...a)=>{dbg(k+':',...a.map(String));o.apply(console,a);};});
@@ -53,16 +53,20 @@ async function start(){
  // Preflight: ask for the camera inside the tap (iOS gesture), so we can show a precise error. Stream is released; MindAR reopens it.
  try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});s.getTracks().forEach(x=>x.stop());}
  catch(e){window._camErr=e;dbg('gUM',e.name,e.message);return fail(camHelp(e));}
- v.muted=false;try{await v.play();v.pause();}catch(e){v.muted=true;}  // unlock audio in the gesture; muted fallback
+ if(!v.none){v.muted=false;try{await v.play();v.pause();}catch(e){v.muted=true;}}  // unlock audio in the gesture; muted fallback
  if(!ready)await new Promise(r=>scene.addEventListener('loaded',r,{once:true}));
  status('Loading AR…');
  try{await scene.systems['mindar-image-system'].start();}catch(e){dbg('start',e);return fail(camHelp(e));}
 }
 $('go').onclick=start;
 $('retry').onclick=()=>{try{scene.systems['mindar-image-system'].stop();}catch(e){}start();};
-const showSnd=()=>$('snd').classList.toggle('hide',!v.muted);
+const showSnd=()=>$('snd').classList.toggle('hide',v.none||!v.muted);
 $('snd').onclick=()=>{v.muted=false;v.play().catch(()=>{});showSnd();};
-t.addEventListener('targetFound',()=>{$('hint').classList.add('hide');if($('link').getAttribute('href'))$('link').classList.remove('hide');v.play().catch(()=>{v.muted=true;v.play();}).finally(showSnd);});
+t.addEventListener('targetFound',()=>{$('hint').classList.add('hide');if($('link').getAttribute('href'))$('link').classList.remove('hide');if(!v.none)v.play().catch(()=>{v.muted=true;return v.play();}).catch(()=>{}).finally(showSnd);});
 t.addEventListener('targetLost',()=>{$('hint').classList.remove('hide');v.pause();});
 if(inApp)dbg('in-app browser detected');
+</script>
+<script>window.GAME=null;</script>
+<script src="../game.js"></script>
+<script>
 </script></body></html>

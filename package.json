@@ -1,0 +1,23 @@
+{
+  "name": "bellio-ar-template",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "add-client": "node scripts/add-client.js",
+    "serve": "npx --yes serve docs -l 3000"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
+    "canvas": "^3.1.0",
+    "mind-ar": "^1.2.5",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "jsqr": "^1.4.0"
+  },
+  "overrides": {
+    "canvas": "^3.1.0"
+  }
+}

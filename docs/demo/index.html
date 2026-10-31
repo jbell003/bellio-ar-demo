@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Bellio Gulf Coast – A tile demo</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:system-ui,sans-serif}
+#start{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:rgba(0,20,40,.92);color:#fff;text-align:center;padding:20px}
+#start button{font-size:22px;padding:18px 32px;border-radius:14px;border:0;background:#ffb703;font-weight:700}
+#hint{position:fixed;bottom:16px;width:100%;text-align:center;color:#fff;font-size:15px;z-index:5;text-shadow:0 0 4px #000}
+#snd,#link{position:fixed;top:12px;z-index:6;padding:8px 14px;border-radius:20px;border:0;background:rgba(255,255,255,.9);font-weight:600;display:none;text-decoration:none;color:#000}
+#snd{left:12px}#link{right:12px}</style>
+</head><body>
+<div id="start"><h2>Bellio Gulf Coast – A tile demo</h2><button id="go">Tap to start</button><small>Allow camera access, then point at the photo.</small></div>
+<div id="hint">Point your camera at the A tile</div><button id="snd">🔇 Tap for sound</button><a id="link" href="" target="_blank" rel="noopener">Learn more</a>
+<a-scene id="scene" mindar-image="imageTargetSrc: target.mind; autoStart: false; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.001" color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+ <a-assets><video id="vid" src="video.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"></video></a-assets>
+ <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+ <a-entity id="target" mindar-image-target="targetIndex: 0">
+  <a-video src="#vid" width="1" height="1.0000" position="0 0 0.01"></a-video>
+ </a-entity>
+</a-scene>
+<script>
+const v=document.getElementById('vid'),hint=document.getElementById('hint'),snd=document.getElementById('snd'),link=document.getElementById('link');
+const showSnd=()=>{snd.style.display=v.muted?'block':'none'};
+const play=()=>v.play().catch(()=>{v.muted=true;showSnd();return v.play();});
+document.getElementById('go').onclick=async()=>{
+ document.getElementById('start').remove();
+ try{await v.play();v.pause();}catch(e){v.muted=true;}   // iOS audio unlock in the tap; muted fallback
+ showSnd(); document.getElementById('scene').systems['mindar-image-system'].start();
+};
+snd.onclick=()=>{v.muted=false;v.play().catch(()=>{});showSnd();};
+const t=document.getElementById('target');
+t.addEventListener('targetFound',()=>{hint.style.display='none';if(link.getAttribute('href'))link.style.display='block';play();});
+t.addEventListener('targetLost',()=>{hint.style.display='';v.pause();});
+</script></body></html>

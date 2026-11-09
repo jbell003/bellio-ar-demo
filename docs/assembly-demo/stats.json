@@ -1,0 +1,22 @@
+{
+  "targets": [
+    {
+      "index": 0,
+      "matchingPoints": 2446,
+      "trackingPoints": 50,
+      "size": "1000x1000"
+    },
+    {
+      "index": 1,
+      "matchingPoints": 2207,
+      "trackingPoints": 57,
+      "size": "1000x1000"
+    },
+    {
+      "index": 2,
+      "matchingPoints": 2467,
+      "trackingPoints": 59,
+      "size": "1000x1000"
+    }
+  ]
+}

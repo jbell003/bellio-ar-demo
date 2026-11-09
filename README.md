@@ -1,4 +1,4 @@
-# Bellio Gulf Coast – Web AR template (MindAR, free)
+# Bellio Gulf Coast - Web AR template (MindAR, free)
 
 Scan a QR code → a web page opens (no app) → tap **Start** → point the phone at the printed photo → an MP4 plays locked on top of it.
 Built with [MindAR](https://github.com/hiukim/mind-ar-js) (MIT, no watermark) + A-Frame, loaded from CDN. Static output in `docs/` for free GitHub Pages hosting.
@@ -32,7 +32,7 @@ Rebuild everything: `npm run build` (`-- --force` to recompile all .mind files).
 1. Create a public repo (e.g. `bellio-ar-demo`), push this folder.
 2. Settings → Pages → Deploy from branch → `main` / `/docs`.
 3. Set `config.json` baseUrl to `https://<user>.github.io/bellio-ar-demo`, `npm run build`, commit, push.
-Camera access requires HTTPS — Pages provides it.
+Camera access requires HTTPS  -  Pages provides it.
 
 ## Test locally
 `npm run serve` → http://localhost:3000/<slug>/ (desktop webcam works on localhost; phones need HTTPS, i.e. the Pages URL).
@@ -40,15 +40,41 @@ Print/show `clients/<slug>/target.jpg` on paper or another screen and point the 
 
 ## Target image quality (most important)
 MindAR tracks corners/texture. Good: busy, high-contrast detail spread across the whole image, non-repeating, matte print. Bad: big flat areas, a single letter/logo on plain background, repeating patterns, glossy finishes, fabric.
-`build.js` prints `matchingPoints` / `trackingPoints` per client (also in `docs/<slug>/stats.json`). Rough guide from our tests: trackingPoints < ~25 = weak; 40+ = good. If weak, add a textured border/background to the printed design (see `clients/demo-border`) — the printed piece must match the target image.
+`build.js` prints `matchingPoints` / `trackingPoints` per client (also in `docs/<slug>/stats.json`). Rough guide from our tests: trackingPoints < ~25 = weak; 40+ = good. If weak, add a textured border/background to the printed design (see `clients/demo-border`)  -  the printed piece must match the target image.
 `scripts/make-placeholders.js` regenerates the sample Bellio Gulf Coast postcard (`clients/bellio-gulf-coast`) and bordered tile.
+
+## AR Instructions (multi-step, one video per picture)
+Scan a printed instruction sheet → tap **Start** → point at **any Step picture** → that step's how-to video plays on top of it.
+One `.mind` file holds every step image. Each step has its own short MP4.
+
+Add a multi-step client (pairs of image + video, in order):
+```
+node scripts/add-instructions.js <slug> --name "Product Name" \
+  step1.jpg step1.mp4 step2.jpg step2.mp4 step3.jpg step3.mp4
+git add -A && git commit -m "add <slug> instructions" && git push
+```
+Optional flags: `--link https://…` `--hint "Point at a Step picture"` `--no-build`.
+
+Folder layout written by the script:
+```
+clients/<slug>/client.json   # type: "instructions", steps: [...]
+clients/<slug>/step1.jpg + step1.mp4
+clients/<slug>/step2.jpg + step2.mp4
+…
+docs/<slug>/                 # live page, target.mind, step videos
+docs/qr/<slug>.png
+```
+
+Sample demo: **Build a Birdhouse** (`assembly-demo`). Regenerate its assets with `npm run make-assembly-demo` then `node scripts/build.js assembly-demo`. Printable sheet: `docs/assembly-demo/instruction-sheet.pdf` (and `.png`).
+
+Tips for step pictures: each one must look different from the others (MindAR can confuse similar images). Busy, high-contrast detail; trackingPoints 40+ per step (see `docs/<slug>/stats.json`). Keep videos short (10-30 s), H.264 MP4, same aspect ratio as the picture when you can.
 
 ## Mini-game clients (`type: "game"`)
 When the target is detected, light 3D items (A-Frame primitives: coin, shell, bolt, star, gem, sphere) pop up and bob above the card. Tap them for points; a HUD shows score + countdown, then a results screen with **Play again** and a call-to-action button. No video is needed; one small shared `docs/game.js`.
 
 Example `clients/bellio-gulf-coast-game/client.json` (reuses the postcard target via `targetFrom`, so the same print works for both):
 ```json
-{ "name": "Bellio Gulf Coast – Beach Treasure", "type": "game", "targetFrom": "bellio-gulf-coast",
+{ "name": "Bellio Gulf Coast - Beach Treasure", "type": "game", "targetFrom": "bellio-gulf-coast",
   "game": { "title": "Beach Treasure Hunt", "itemName": "coins & shells", "emoji": "🪙",
     "items": [{ "shape": "coin", "color": "#ffd166" }, { "shape": "shell", "color": "#f4a261" }],
     "count": 6, "duration": 20, "pointsPerTap": 10,

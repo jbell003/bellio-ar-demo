@@ -1,0 +1,12 @@
+{
+  "name": "AR Instructions - Build a Birdhouse",
+  "type": "instructions",
+  "hint": "Point at any Step picture on the sheet",
+  "link": "",
+  "linkText": "Get AR Instructions for your product",
+  "steps": [
+    { "label": "Step 1", "caption": "Attach the side panels", "image": "step1.jpg", "video": "step1.mp4" },
+    { "label": "Step 2", "caption": "Add the pitched roof", "image": "step2.jpg", "video": "step2.mp4" },
+    { "label": "Step 3", "caption": "Mount on the post", "image": "step3.jpg", "video": "step3.mp4" }
+  ]
+}

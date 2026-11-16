@@ -303,7 +303,7 @@ function topAt(L, x) { let t = 999; L.grounds.forEach((g) => { if (x >= g.x && x
 const cv = $('game'), ctx = cv.getContext('2d');
 let W = 256, H = 144, S = 4, DPR = 1, offY = 0;
 let L = buildLevel(), P = null, Gm = null;
-let mode = 'manual', pixelLook = true, photo = null, remember = false;
+let mode = 'manual', pixelLook = false, photo = null, remember = false;
 const input = { left: false, right: false, jump: false };
 const isTouch = window.matchMedia && matchMedia('(pointer:coarse)').matches;
 const parts = [], pops = [];
@@ -653,20 +653,29 @@ function drawEnemies(cam, t) {
   }
 }
 function pickFrame(p) { if (!p.on) return 'jump'; if (Math.abs(p.vx) > 12) return Math.floor(p.anim) % 2 ? 'run1' : 'run2'; return 'idle'; }
+const HEAD_WORLD = 28; // bobblehead size in world units (hitbox is unchanged)
 function blitPlayer(g, x, y, frame, face, bob, smoothHead) {
   g.save();
   if (face < 0) { g.translate(x + 17, y + 15); g.scale(-1, 1); g.drawImage(SP.body[frame], 0, 0); }
   else g.drawImage(SP.body[frame], x + 1, y + 15);
   g.restore();
-  if (smoothHead) g.imageSmoothingEnabled = true;
-  g.drawImage(SP.head, x, y + (bob ? 1 : 0), 18, 18);
+  const photoOn = !!photo && SP.head !== SP.headDefault;
+  if (photoOn) {
+    const HS = HEAD_WORLD, hx = x + 9, hy = y + 7 + (bob ? 1 : 0);
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.fillStyle = 'rgba(20,10,40,.3)'; g.beginPath(); g.ellipse(hx, hy + HS * 0.4, HS * 0.32, HS * 0.1, 0, 0, 7); g.fill();
+    g.drawImage(SP.head, hx - HS / 2, hy - HS / 2, HS, HS);
+  } else {
+    g.imageSmoothingEnabled = false;
+    g.drawImage(SP.head, x, y + (bob ? 1 : 0), 18, 18);
+  }
   g.imageSmoothingEnabled = false;
 }
 function drawPlayer(cam, t) {
   const p = P; if (!p) return;
   if (p.inv > 0 && Gm.state === 'play' && Math.floor(t * 18) % 2) return;
   const fr = pickFrame(p), bob = fr === 'run1' || (fr === 'run2' && false);
-  blitPlayer(ctx, Math.round(p.x - cam) - 4, Math.round(p.y) - 2, p.dead ? 'jump' : fr, p.face, bob, !!photo && !pixelLook);
+  blitPlayer(ctx, Math.round(p.x - cam) - 4, Math.round(p.y) - 2, p.dead ? 'jump' : fr, p.face, bob, !!photo);
 }
 function drawParts(cam) {
   for (const q of parts) { ctx.globalAlpha = Math.min(1, q.life * 2.5); ctx.fillStyle = q.color; ctx.fillRect(Math.round(q.x - cam), Math.round(q.y), q.size, q.size); }
@@ -684,6 +693,12 @@ function drawHUD() {
   for (let i = 0; i < 3; i++) ctx.drawImage(i < P.hearts ? SP.heart : SP.heartEmpty, 4 + i * 11, 15);
   ctx.drawImage(SP.coin, 42, 15); text2('x' + Gm.coins, 52, 16, '#fff4d6', '#000');
   const sx = 52 + (String(Gm.coins).length + 1) * 6 + 6; ctx.drawImage(SP.shell, sx, 14); text2('x' + Gm.shells, sx + 12, 16, '#fff4d6', '#000');
+  if (photo && SP.head && SP.head !== SP.headDefault) {
+    const hs = 14, hx = W - rm - hs - 3, hy = 3;
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(SP.head, hx, hy, hs, hs);
+    ctx.imageSmoothingEnabled = false;
+  }
   const bw = W - 8 - rm, prog = clamp(P.x / L.flagX, 0, 1);
   ctx.fillStyle = '#000'; ctx.fillRect(4, 28, bw, 4); ctx.fillStyle = '#4a3a6a'; ctx.fillRect(5, 29, bw - 2, 2); ctx.fillStyle = '#7dffb0'; ctx.fillRect(5, 29, Math.round((bw - 2) * prog), 2);
   ctx.fillStyle = '#fff4d6'; ctx.fillRect(4 + bw - 3, 24, 1, 8); ctx.fillStyle = COL.shirt; ctx.fillRect(4 + bw - 2, 24, 4, 3);
@@ -811,41 +826,36 @@ $('btnWinMenu').addEventListener('click', toMenu); $('btnOverMenu').addEventList
 $('modeAuto').addEventListener('click', () => setMode('auto')); $('modeManual').addEventListener('click', () => setMode('manual'));
 
 /* ---------- photo head (stays on the device) ---------- */
+function photoRes() { return clamp(Math.round(256 * Math.min(3, window.devicePixelRatio || 1)), 256, 512); }
 function buildHead() {
   if (!photo) { SP.head = SP.headDefault; return; }
-  if (pixelLook) {
-    // step down to 16x16, then cut a pixel circle with a dark outline
-    let src = photo, size = photo.width;
-    while (size > 32) { const h = Math.max(32, size >> 1), t = mk(h, h), g = t.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(src, 0, 0, h, h); src = t; size = h; }
-    const small = mk(16, 16), sg = small.getContext('2d'); sg.imageSmoothingQuality = 'high'; sg.drawImage(src, 0, 0, 16, 16);
-    const sd = sg.getImageData(0, 0, 16, 16).data, out = mk(18, 18), og = out.getContext('2d'), od = og.createImageData(18, 18);
-    for (let y = 0; y < 18; y++) for (let x = 0; x < 18; x++) {
-      const dx = x + 0.5 - 9, dy = y + 0.5 - 9, d = Math.sqrt(dx * dx + dy * dy), o = (y * 18 + x) * 4;
-      if (d <= 8) {
-        const sx = clamp(x - 1, 0, 15), sy = clamp(y - 1, 0, 15), si = (sy * 16 + sx) * 4;
-        // gentle pop so small faces read well
-        for (let k = 0; k < 3; k++) od.data[o + k] = clamp((sd[si + k] - 128) * 1.12 + 132, 0, 255);
-        od.data[o + 3] = 255;
-      } else if (d <= 9.1) { od.data[o] = 43; od.data[o + 1] = 26; od.data[o + 2] = 58; od.data[o + 3] = 255; }
-    }
-    og.putImageData(od, 0, 0); SP.head = out;
-  } else {
-    const R = 72, out = mk(R, R), g = out.getContext('2d'); g.imageSmoothingQuality = 'high';
-    g.save(); g.beginPath(); g.arc(R / 2, R / 2, R / 2 - 4, 0, Math.PI * 2); g.clip(); g.drawImage(photo, 4, 4, R - 8, R - 8); g.restore();
-    g.lineWidth = 4; g.strokeStyle = '#2b1a3a'; g.beginPath(); g.arc(R / 2, R / 2, R / 2 - 2, 0, Math.PI * 2); g.stroke(); SP.head = out;
-  }
+  // Always keep the photo face sharp, even in the retro game. Pixel look is not applied to the face.
+  const R = Math.max(photoRes(), photo.width || 0, photo.height || 0);
+  const out = mk(R, R), g = out.getContext('2d');
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  const pad = Math.max(6, Math.round(R * 0.06));
+  g.save(); g.beginPath(); g.arc(R / 2, R / 2, R / 2 - pad, 0, Math.PI * 2); g.clip();
+  g.drawImage(photo, pad, pad, R - pad * 2, R - pad * 2); g.restore();
+  g.lineWidth = Math.max(5, R * 0.045); g.strokeStyle = '#fff4d6';
+  g.beginPath(); g.arc(R / 2, R / 2, R / 2 - g.lineWidth * 0.7, 0, Math.PI * 2); g.stroke();
+  g.lineWidth = Math.max(2, R * 0.016); g.strokeStyle = '#2b1a3a';
+  g.beginPath(); g.arc(R / 2, R / 2, R / 2 - Math.max(3, R * 0.026), 0, Math.PI * 2); g.stroke();
+  SP.head = out;
 }
 function drawAvatar(canvas, scale) {
-  const g = canvas.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, canvas.width, canvas.height); g.imageSmoothingEnabled = false;
-  g.setTransform(scale, 0, 0, scale, 0, 0); blitPlayer(g, 0, 0, 'idle', 1, false, !!photo && !pixelLook); g.setTransform(1, 0, 0, 1, 0, 0);
+  const g = canvas.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, canvas.width, canvas.height);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  const worldW = canvas.width / scale, worldH = canvas.height / scale;
+  const x = (worldW - 18) / 2, y = worldH - 30;
+  g.setTransform(scale, 0, 0, scale, 0, 0); blitPlayer(g, x, y, 'idle', 1, false, !!photo); g.setTransform(1, 0, 0, 1, 0, 0);
 }
 function refreshAvatar() {
-  drawAvatar($('avatarPrev'), 4); $('btnRemove').hidden = !photo;
+  const av = $('avatarPrev'); drawAvatar(av, av.width / 28); $('btnRemove').hidden = !photo;
   $('btnFace').textContent = photo ? 'Change your face' : 'Add your face';
 }
 function loadSavedPhoto() {
   const d = store.get('photo'); if (!d) return;
-  const img = new Image(); img.onload = () => { const c = mk(96, 96); c.getContext('2d').drawImage(img, 0, 0, 96, 96); photo = c; remember = true; buildHead(); refreshAvatar(); };
+  const img = new Image(); img.onload = () => { const R = photoRes(), c = mk(R, R), g = c.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, R, R); photo = c; remember = true; buildHead(); refreshAvatar(); };
   img.src = d;
 }
 function removePhoto() { photo = null; remember = false; store.del('photo'); buildHead(); refreshAvatar(); }
@@ -880,14 +890,15 @@ function cropDraw() {
   if (!cropRaf) cropRaf = requestAnimationFrame(() => { cropRaf = 0; cropPreview(); });
 }
 function cropOutput() {
-  const im = crop.img, out = mk(96, 96), g = out.getContext('2d'); g.imageSmoothingQuality = 'high';
+  const R = photoRes(), im = crop.img, out = mk(R, R), g = out.getContext('2d');
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   const sx = (CS / 2 - CR - crop.ox) / crop.scale, sy = (CS / 2 - CR - crop.oy) / crop.scale, sw = 2 * CR / crop.scale;
-  g.drawImage(im, sx, sy, sw, sw, 0, 0, 96, 96); return out;
+  g.drawImage(im, sx, sy, sw, sw, 0, 0, R, R); return out;
 }
 function cropPreview() {
   if (!crop.img) return;
   const keepPhoto = photo, keepHead = SP.head, keepPix = pixelLook;
-  photo = cropOutput(); pixelLook = $('optPixel').checked; buildHead(); drawAvatar($('cropPrev'), 3);
+  photo = cropOutput(); pixelLook = false; const cpv = $('cropPrev'); buildHead(); drawAvatar(cpv, cpv.width / 28);
   photo = keepPhoto; SP.head = keepHead; pixelLook = keepPix;
 }
 function openCrop(file) {
@@ -905,8 +916,8 @@ function openCrop(file) {
 function cancelCrop() { $('cropModal').hidden = true; crop.img = null; }
 function applyCrop() {
   if (!crop.img) return;
-  photo = cropOutput(); pixelLook = $('optPixel').checked; remember = $('optRemember').checked; store.set('pixel', pixelLook ? '1' : '0');
-  if (remember) { try { store.set('photo', photo.toDataURL('image/jpeg', 0.88)); } catch (e) {} } else store.del('photo');
+  photo = cropOutput(); pixelLook = false; remember = $('optRemember').checked; store.set('pixel', '0');
+  if (remember) { try { store.set('photo', photo.toDataURL('image/jpeg', 0.92)); } catch (e) {} } else store.del('photo');
   buildHead(); refreshAvatar(); cancelCrop();
 }
 ['fileCam', 'fileGal'].forEach((id) => $(id).addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; openCrop(f); }));
@@ -952,7 +963,7 @@ function init() {
   ['startCta'].forEach((id) => { const a = $(id); a.href = CFG.cta.link; a.textContent = CFG.cta.heading; });
   [['winCtaHead', 'winCta'], ['overCtaHead', 'overCta']].forEach((p) => { $(p[0]).textContent = CFG.cta.heading; const a = $(p[1]); a.href = CFG.cta.link; a.textContent = CFG.cta.buttonText; });
   Snd.muted = store.get('muted') === '1'; refreshMute();
-  const pxs = store.get('pixel'); if (pxs !== null) pixelLook = pxs === '1';
+  pixelLook = false;
   setMode(store.get('mode') || (isTouch ? 'auto' : 'manual'));
   resize(); window.addEventListener('resize', resize); window.addEventListener('orientationchange', () => setTimeout(resize, 150));
   if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);

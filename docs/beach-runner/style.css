@@ -52,7 +52,7 @@ h2.win{color:#7dffb0}h2.lose{color:#ff7a7a}
 .err{color:#ff9a9a;font-size:10px;line-height:1.5}
 #brandLogo{max-width:140px;max-height:60px;margin:0 auto 8px;display:block;image-rendering:auto}
 .avatarRow{display:flex;gap:14px;align-items:center;justify-content:center;margin:6px 0}
-#avatarPrev{width:72px;height:104px;image-rendering:pixelated;flex:none;background:rgba(255,255,255,.08);border-radius:6px}
+#avatarPrev{width:84px;height:118px;flex:none;background:rgba(255,255,255,.08);border-radius:6px}
 .avatarBtns{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:150px}
 .btn{font-family:var(--font);font-size:12px;font-weight:700;letter-spacing:.5px;border:3px solid #fff4d6;border-radius:6px;background:var(--btn);color:var(--btnText);padding:12px 12px;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 4px 0 #000;text-align:center;line-height:1.2}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
@@ -87,5 +87,5 @@ h2.win{color:#7dffb0}h2.lose{color:#ff7a7a}
 .chk{display:flex;gap:6px;align-items:center;line-height:1.4;cursor:pointer}
 .chk input{width:18px;height:18px}
 .cropPrev{display:flex;gap:10px;align-items:center;justify-content:center;margin:6px 0 10px}
-#cropPrev{width:54px;height:78px;image-rendering:pixelated}
+#cropPrev{width:63px;height:84px}
 @media (max-height:560px){.panel{padding:10px}.sub{margin-bottom:6px}.avatarRow{margin:2px 0}h1{font-size:20px}}

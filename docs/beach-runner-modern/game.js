@@ -1,4 +1,4 @@
-/* Beach Runner, modern sponsored edition. Plain HTML5 canvas, no libraries, no build step.
+/* Beach Runner, modern edition. Plain HTML5 canvas, no libraries, no build step.
    All art is vector drawn in code and all sounds are generated with WebAudio.
    Photos are read on the device only and are never uploaded. */
 (function () {
@@ -8,17 +8,17 @@
 const DEF = {
   gameTitle: 'Beach Runner', tagline: '',
   sponsor: {
-    name: 'Haid Electric', signTop: 'HAID', signBar: 'ELECTRIC', city: 'PANAMA CITY - FL', phone: '(850) 832-8397', slogan: 'We give you the power', poweredBy: 'Powered by Haid Electric',
-    colors: { board: '#23272e', text: '#ffffff', accent: '#ffe600', accent2: '#4cc9f0' },
+    name: 'Your Business Here', signTop: 'YOUR BUSINESS', signBar: 'HERE', city: 'GULF COAST - FL', phone: '', slogan: 'Your slogan here', poweredBy: 'A demo by Bellio Gulf Coast', flagLetter: 'B',
+    colors: { board: '#0B2545', text: '#ffffff', accent: '#1BA3A3', accent2: '#F4A261' },
     scene: { storefront: true, van: true, billboards: true, banners: true, powerLines: true }
   },
-  colors: { shirt: '#4a525e', shorts: '#2d3b5c', hat: '#ffe600', button: '#ffe600', buttonText: '#1b1f27', panel: '#12161d', panelText: '#f4f6fa', accent: '#ffe600' },
+  colors: { shirt: '#1BA3A3', shorts: '#0B2545', hat: '#F4A261', button: '#1BA3A3', buttonText: '#ffffff', panel: '#0B2545', panelText: '#F7F1E3', accent: '#1BA3A3' },
   skyColors: ['#1c2452', '#3b3a7c', '#7a4a8f', '#c8607f', '#f0836a', '#ffb067', '#ffd58a'],
-  collectibles: { common: { name: 'Bolt', plural: 'Bolts', points: 10 }, rare: { name: 'Mega Bolt', plural: 'Mega Bolts', points: 50 } },
-  cta: { heading: 'Need an electrician in Panama City?', buttonText: 'Call Haid Electric', link: 'tel:+18508328397' },
-  studio: { name: 'Bellio Gulf Coast', heading: 'Want a game like this for your business?', buttonText: 'Get a game like this', link: 'https://jbell003.github.io/bellio-gulf-coast/#contact' },
-  disclaimer: 'Sample demo by Bellio Gulf Coast. Not an official Haid Electric game.',
-  photoNote: 'Your photo stays on your phone', storageKey: 'beachRunner.haid'
+  collectibles: { common: { name: 'Coin', plural: 'Coins', points: 10 }, rare: { name: 'Seashell', plural: 'Seashells', points: 50 } },
+  cta: { heading: 'Want a game like this for your business?', buttonText: 'Get a game like this', link: 'https://belliogulfcoast.com/#contact' },
+  studio: { name: 'Bellio Gulf Coast', heading: '', buttonText: 'Bellio Gulf Coast', link: 'https://belliogulfcoast.com/#contact' },
+  disclaimer: 'A sample demo by Bellio Gulf Coast. Your business could be in a game like this.',
+  photoNote: 'Your photo stays on your phone', storageKey: 'beachRunner.modern'
 };
 function merge(a, b) {
   const o = Array.isArray(a) ? a.slice() : Object.assign({}, a);
@@ -85,6 +85,43 @@ function boltSprite(c1, c2, glow, size) {
   g.fillStyle = lg; g.fill(); g.lineJoin = 'round'; g.lineWidth = size * 0.025; g.strokeStyle = 'rgba(255,255,255,.9)'; g.stroke();
   return c;
 }
+function coinSprite(size) {
+  const c = mk(size, size), g = c.getContext('2d'), m = size / 2, r = size * 0.32;
+  const glow = g.createRadialGradient(m, m, 0, m, m, m);
+  glow.addColorStop(0, 'rgba(255,220,80,.7)'); glow.addColorStop(0.5, 'rgba(255,180,40,.18)'); glow.addColorStop(1, 'rgba(255,180,40,0)');
+  g.fillStyle = glow; g.fillRect(0, 0, size, size);
+  g.beginPath(); g.arc(m, m, r, 0, 7);
+  const lg = g.createLinearGradient(m - r, m - r, m + r, m + r);
+  lg.addColorStop(0, '#fff8c4'); lg.addColorStop(0.35, '#ffd23f'); lg.addColorStop(1, '#c98410');
+  g.fillStyle = lg; g.fill(); g.lineWidth = size * 0.03; g.strokeStyle = '#fff4d0'; g.stroke();
+  g.beginPath(); g.arc(m, m, r * 0.62, 0, 7); g.lineWidth = size * 0.04; g.strokeStyle = 'rgba(160,90,10,.55)'; g.stroke();
+  g.fillStyle = 'rgba(255,255,255,.45)'; g.beginPath(); g.ellipse(m - r * 0.28, m - r * 0.3, r * 0.28, r * 0.16, -0.6, 0, 7); g.fill();
+  return c;
+}
+function shellSprite(c1, c2, glow, size) {
+  const c = mk(size, size), g = c.getContext('2d'), m = size / 2;
+  const gr = g.createRadialGradient(m, m, 0, m, m, m);
+  gr.addColorStop(0, rgba(glow, 0.65)); gr.addColorStop(0.45, rgba(glow, 0.18)); gr.addColorStop(1, rgba(glow, 0));
+  g.fillStyle = gr; g.fillRect(0, 0, size, size);
+  const s = size * 0.38;
+  g.beginPath(); g.moveTo(m, m + s * 0.85);
+  for (let i = 0; i <= 8; i++) {
+    const a = Math.PI + i / 8 * Math.PI, r = s * (i % 2 ? 0.62 : 1);
+    g.lineTo(m + Math.cos(a) * r, m + Math.sin(a) * r * 0.85 + s * 0.05);
+  }
+  g.closePath();
+  const lg = g.createLinearGradient(m, m - s, m, m + s);
+  lg.addColorStop(0, '#ffffff'); lg.addColorStop(0.25, c1); lg.addColorStop(1, c2);
+  g.fillStyle = lg; g.fill(); g.lineJoin = 'round'; g.lineWidth = size * 0.02; g.strokeStyle = 'rgba(255,255,255,.85)'; g.stroke();
+  g.strokeStyle = 'rgba(80,40,30,.25)'; g.lineWidth = size * 0.012;
+  for (let i = 1; i < 8; i++) { const a = Math.PI + i / 8 * Math.PI; g.beginPath(); g.moveTo(m, m + s * 0.7); g.lineTo(m + Math.cos(a) * s * 0.9, m + Math.sin(a) * s * 0.75); g.stroke(); }
+  return c;
+}
+function sunMark(g, cx, cy, s, col) {
+  g.fillStyle = col; g.beginPath(); g.arc(cx, cy, s * 0.32, 0, 7); g.fill();
+  g.strokeStyle = col; g.lineWidth = s * 0.08; g.lineCap = 'round';
+  for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; g.beginPath(); g.moveTo(cx + Math.cos(a) * s * 0.48, cy + Math.sin(a) * s * 0.48); g.lineTo(cx + Math.cos(a) * s * 0.7, cy + Math.sin(a) * s * 0.7); g.stroke(); }
+}
 function heartSprite(full) {
   const s = 64, c = mk(s, s), g = c.getContext('2d');
   g.beginPath(); g.moveTo(32, 56); g.bezierCurveTo(2, 36, 6, 8, 24, 10); g.bezierCurveTo(30, 11, 32, 16, 32, 18); g.bezierCurveTo(32, 16, 34, 11, 40, 10); g.bezierCurveTo(58, 8, 62, 36, 32, 56); g.closePath();
@@ -103,16 +140,16 @@ function cloudSprite(w, h, seed) {
   }
   return c;
 }
-// the sponsor sign: clean text and colors, recreated in code (not a photo of the logo)
+// the business sign: clean text and colors, recreated in code (not a photo of a logo)
 function makeSign() {
   const w = 720, h = 340, c = mk(w, h), g = c.getContext('2d');
   const board = SC.board, txt = SC.text, acc = SC.accent;
   rr(g, 6, 6, w - 12, h - 12, 34); g.fillStyle = vgrad(g, 0, h, [[0, shade(board, 1.25)], [1, shade(board, 0.8)]]); g.fill();
   g.lineWidth = 6; g.strokeStyle = rgba(txt, 0.28); g.stroke();
   rr(g, 22, 22, w - 44, h - 44, 24); g.lineWidth = 3; g.strokeStyle = rgba(acc, 0.85); g.stroke();
-  // swoosh streak with a lightning notch
-  g.fillStyle = txt; g.beginPath(); g.moveTo(54, 86); g.lineTo(w * 0.42, 70); g.lineTo(w * 0.47, 70); g.lineTo(w * 0.42, 80); g.lineTo(w - 54, 72); g.lineTo(w - 54, 77); g.lineTo(w * 0.45, 90); g.lineTo(w * 0.42, 90); g.lineTo(w * 0.40, 95); g.closePath(); g.fill();
-  boltPath(g, w / 2 + 6, 70, 54); g.fillStyle = acc; g.fill();
+  // simple sun and a clean swoosh, no brand artwork
+  g.fillStyle = txt; g.beginPath(); g.moveTo(54, 86); g.lineTo(w * 0.42, 72); g.lineTo(w - 54, 72); g.lineTo(w - 54, 78); g.lineTo(w * 0.42, 78); g.closePath(); g.fill();
+  sunMark(g, w / 2, 70, 54, acc);
   // big word
   g.fillStyle = txt; g.textBaseline = 'alphabetic';
   const top = String(SP_.signTop || SP_.name).toUpperCase(); const fs = fitText(g, top, '900 {s}px ' + HEAVY, w - 130, 150, 0.04);
@@ -144,10 +181,11 @@ function drawPalm(g, bx, by, h, lean, sil, seed) {
   if (!sil) { g.fillStyle = '#4a2f18'; g.beginPath(); g.arc(tx - 1.6, ty + 2, 1.5, 0, 7); g.arc(tx + 1.6, ty + 2.4, 1.5, 0, 7); g.fill(); }
 }
 function buildAssets() {
-  AS.bolt = boltSprite('#ffe600', '#ffb300', '#ffe600', 128);
-  AS.mega = boltSprite('#bdf3ff', '#2aa7d4', SC.accent2, 128);
-  AS.boltC = boltSprite(SC.accent, shade(SC.accent, 0.7), SC.accent, 128);
-  AS.megaC = boltSprite('#ffffff', shade(SC.accent2, 0.8), SC.accent2, 128);
+  AS.coin = coinSprite(128);
+  AS.shell = shellSprite('#ffd6e0', '#e58fb0', '#ffb0c0', 128);
+  AS.coinC = coinSprite(128);
+  AS.shellC = shellSprite('#fff4d6', SC.accent2, SC.accent2, 128);
+  AS.bolt = AS.coin; AS.mega = AS.shell; AS.boltC = AS.coinC; AS.megaC = AS.shellC;
   AS.heart = heartSprite(true); AS.heartE = heartSprite(false);
   AS.glowW = glowSprite('#fff4d0', 96); AS.glowY = glowSprite(SC.accent, 96); AS.glowB = glowSprite(SC.accent2, 96); AS.glowO = glowSprite('#ffc27a', 96);
   AS.clouds = [cloudSprite(260, 90, 3), cloudSprite(200, 70, 17), cloudSprite(320, 100, 31)];
@@ -207,17 +245,19 @@ function drawChar(g, x, y, st) {
   // shorts + torso
   g.fillStyle = vgrad(g, -9, -3, [[0, shade(COL.shorts, 1.2)], [1, shade(COL.shorts, 0.8)]]); rr(g, -4.8, -8 - bob, 9.6, 5, 1.8); g.fill();
   g.fillStyle = vgrad(g, -15, -8, [[0, shade(COL.shirt, 1.25)], [1, shade(COL.shirt, 0.85)]]); rr(g, -5.4, -15 - bob, 10.8, 8, 2.6); g.fill();
-  boltPath(g, 0.3, -11.2 - bob, 4.2); g.fillStyle = SC.accent; g.fill();
+  sunMark(g, 0.3, -11.2 - bob, 4.6, shade(COL.shirt, 1.55));
   foot(1, false);
   // front arm
   limb(4.6, -11 - bob, 4.6 + Math.sin(armA) * 1, -11 - bob + 5.4 * Math.cos(-armA) - (air ? 3.4 : 0), 2.5, skin);
   g.fillStyle = skin; g.beginPath(); g.arc(4.6 + Math.sin(armA), -11 - bob + 5.4 * Math.cos(-armA) - (air ? 3.4 : 0), 1.4, 0, 7); g.fill();
   g.restore();
-  // head (never mirrored)
+  // head (never mirrored). Photo face stays circular and upright, even when the body squashes.
   const hy = -17.5 - bob * 0.7;
   if (HEAD && !st.noPhoto) {
-    g.save(); g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 2.5; g.shadowOffsetY = 1; g.drawImage(HEAD, -9, hy - 9, 18, 18); g.restore();
-  } else { g.save(); g.translate(0, hy); if (face < 0) g.scale(1, 1); drawHeadDefault(g); g.restore(); }
+    g.save(); g.translate(0, hy); g.scale(1 / (sx || 1), 1 / (sy || 1));
+    drawPhotoHead(g, 0, 0);
+    g.restore();
+  } else { g.save(); g.translate(0, hy); drawHeadDefault(g); g.restore(); }
   g.restore();
 }
 
@@ -267,7 +307,7 @@ function drawUrchin(g, e, t) {
   g.strokeStyle = '#2a0a44'; g.lineWidth = 0.6; g.beginPath(); g.moveTo(cx - 2.8, cy - 2); g.lineTo(cx - 0.8, cy - 1.2); g.moveTo(cx + 2.8, cy - 2); g.lineTo(cx + 0.8, cy - 1.2); g.stroke();
 }
 
-/* ---------- sponsor scene pieces (also used in the parallax layers) ---------- */
+/* ---------- business scene pieces (also used in the parallax layers) ---------- */
 function drawStore(g, x, gy, w, h) {
   const board = SC.board, acc = SC.accent;
   g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(x + w / 2, gy, w * 0.58, 2.4, 0, 0, 7); g.fill();
@@ -287,8 +327,6 @@ function drawStore(g, x, gy, w, h) {
   for (let i = 0; i < n; i++) { g.fillStyle = i % 2 ? '#f6f7fa' : acc; g.beginPath(); g.moveTo(x - 3 + i * aw, ay); g.lineTo(x - 3 + (i + 1) * aw, ay); g.lineTo(x - 5 + (i + 1) * aw, ay + 6); g.lineTo(x - 5 + i * aw, ay + 6); g.closePath(); g.fill(); }
   g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x - 4, ay + 6, w + 8, 1.6);
   if (SP_.phone) { g.fillStyle = '#10141c'; g.font = '800 3.7px ' + FONT; g.textAlign = 'center'; g.fillText(SP_.phone, x + w / 2, ay + 4.3); }
-  // neon bolt
-  g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.9; g.drawImage(AS.boltC, x + w - 17, gy - h + 8, 22, 22); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
 }
 function drawVan(g, x, gy, s) {
   s = s || 1; const L = 60 * s, Hh = 26 * s, acc = SC.accent;
@@ -305,7 +343,6 @@ function drawVan(g, x, gy, s) {
   // side logo + stripe
   const sw = 26 * s, sh = sw * 340 / 720; g.drawImage(AS.sign, 6 * s, -Hh + 4 * s, sw, sh);
   g.fillStyle = acc; g.fillRect(1 * s, -9 * s, L - 3 * s, 2 * s);
-  boltPath(g, L - 26 * s, -Hh + 8 * s, 8 * s); g.fillStyle = acc; g.fill(); g.lineWidth = 0.4 * s; g.strokeStyle = '#10141c'; g.stroke();
   // wheels
   [12 * s, L - 14 * s].forEach((wx) => { g.fillStyle = '#12151b'; g.beginPath(); g.arc(wx, -3.6 * s, 5 * s, 0, 7); g.fill(); g.fillStyle = '#9aa3b2'; g.beginPath(); g.arc(wx, -3.6 * s, 2.3 * s, 0, 7); g.fill(); g.fillStyle = '#4b5361'; g.beginPath(); g.arc(wx, -3.6 * s, 0.9 * s, 0, 7); g.fill(); });
   g.fillStyle = '#fff3b0'; g.beginPath(); g.ellipse(L + 0.4 * s, -Hh * 0.42, 1 * s, 1.6 * s, 0, 0, 7); g.fill();
@@ -383,16 +420,16 @@ function buildLayers(k) {
     }
     if (SP_.scene.billboards) drawBillboard(g, 150, 124, 70);
   }, haze, 0.28);
-  // street: sidewalk strip, neighbors, the sponsor storefront, the van and lamps
+  // street: sidewalk strip, neighbor shops, the featured storefront, the van and lamps
   LAYERS.street = mkLayer(960, kl, (g, P) => {
     g.fillStyle = vgrad(g, 112, 128, [[0, '#d9d2c4'], [0.4, '#b9b2a8'], [0.41, '#3b3d4a'], [1, '#2a2b36']]); g.fillRect(0, 112, P, 20);
     g.fillStyle = 'rgba(255,255,255,.35)'; for (let x = 8; x < P; x += 26) g.fillRect(x, 121.5, 12, 0.8);
-    drawBuilding(g, 14, 112, 78, 36, '#7fb7c9', '#ff7a59', 'CAFE');
+    drawBuilding(g, 14, 112, 78, 36, '#7fb7c9', '#ff7a59', 'BEACH CAFE');
     if (SP_.scene.van) drawVan(g, 260, 118, 1.05);
     drawPalm(g, 360, 112, 36, 1, null, 3);
     drawBuilding(g, 400, 112, 96, 44, '#e8a3a0', '#4cc9f0', 'SURF SHOP');
     if (SP_.scene.storefront) drawStore(g, 540, 112, 112, 62);
-    drawBuilding(g, 690, 112, 84, 34, '#9ec59a', '#ffe600', 'GELATO');
+    drawBuilding(g, 690, 112, 84, 34, '#9ec59a', '#F4A261', 'Your Logo Here');
     drawPalm(g, 790, 112, 40, -1, null, 4);
     if (SP_.scene.van) drawVan(g, 820, 118, 1.0);
     [118, 252, 520, 676, 880].forEach((lx) => drawLamp(g, lx, 112, 36, true));
@@ -834,8 +871,8 @@ function drawFlagPole(cam, t) {
   for (let i = 0; i <= 10; i++) { const u = i / 10; g.lineTo(fx + 2.6 + u * fw, fy + Math.sin(t * 6 + u * 5) * (0.5 + u * 1.8) + u * 1.5); }
   for (let i = 10; i >= 0; i--) { const u = i / 10; g.lineTo(fx + 2.6 + u * fw, fy + fh - u * 2.5 + Math.sin(t * 6 + u * 5) * (0.5 + u * 1.8)); }
   g.closePath(); g.fillStyle = vgrad(g, fy, fy + fh, [[0, shade(SC.board, 1.3)], [1, shade(SC.board, 0.85)]]); g.fill(); g.lineWidth = 0.6; g.strokeStyle = acc; g.stroke();
-  boltPath(g, fx + 14, fy + 9, 11); g.fillStyle = acc; g.fill();
-  g.fillStyle = '#fff'; g.font = '900 ' + 5 + 'px ' + HEAVY; g.textAlign = 'center'; g.fillText(String(SP_.signTop || SP_.name).toUpperCase().slice(0, 6), fx + 18, fy + 16);
+  sunMark(g, fx + 12, fy + 8, 9, acc);
+  g.fillStyle = '#fff'; g.font = '900 ' + 7 + 'px ' + HEAVY; g.textAlign = 'center'; g.fillText(String(SP_.flagLetter || 'B').toUpperCase().slice(0, 1), fx + 20, fy + 16);
 }
 function drawDecor(cam, t) {
   const g = ctx;
@@ -849,8 +886,11 @@ function drawDecor(cam, t) {
       g.fillStyle = '#39424f'; g.fillRect(x - 28, G - 22, 2, 22); g.fillRect(x + 26, G - 22, 2, 22);
       g.save(); g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 3; g.shadowOffsetY = 1.2; g.fillStyle = vgrad(g, G - 40, G - 20, [[0, shade(SC.board, 1.3)], [1, shade(SC.board, 0.85)]]); rr(g, x - 36, G - 40, 72, 17, 4); g.fill(); g.restore();
       g.lineWidth = 0.6; g.strokeStyle = SC.accent; rr(g, x - 36, G - 40, 72, 17, 4); g.stroke();
-      boltPath(g, x - 28, G - 31.5, 9); g.fillStyle = SC.accent; g.fill();
-      g.fillStyle = '#fff'; g.font = '800 4.7px ' + FONT; g.textAlign = 'left'; g.fillText(SP_.poweredBy || '', x - 21, G - 29.6);
+      sunMark(g, x - 28, G - 31.5, 8, SC.accent);
+      g.fillStyle = '#fff'; g.font = '800 4.2px ' + FONT; g.textAlign = 'left';
+      const pb = String(SP_.poweredBy || 'Bellio Gulf Coast');
+      const short = pb.length > 22 ? 'Bellio Gulf Coast' : pb;
+      g.fillText(short, x - 21, G - 29.6);
     }
     else if (d.t === 'tuft') drawTuft(g, x, G + 0.5, t);
     else if (d.t === 'star') { g.fillStyle = '#ff9f43'; g.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 1.6 : 4; g.lineTo(x + Math.cos(a) * r, G - 2.5 + Math.sin(a) * r); } g.closePath(); g.fill(); }
@@ -864,7 +904,7 @@ function drawDecor(cam, t) {
     const wv = c.on ? Math.sin(t * 7) * 0.9 : 0;
     g.beginPath(); g.moveTo(x + 1.8, G - 24); g.quadraticCurveTo(x + 7, G - 24 + wv - 1, x + 12, G - 21 + wv); g.quadraticCurveTo(x + 7, G - 18 + wv, x + 1.8, G - 17); g.closePath();
     g.fillStyle = c.on ? SC.accent : '#8590a2'; g.fill();
-    boltPath(g, x + 6.2, G - 20.6 + wv * 0.5, 5); g.fillStyle = c.on ? '#23272e' : '#5a6372'; g.fill();
+    sunMark(g, x + 6.2, G - 20.6 + wv * 0.5, 5, c.on ? '#0B2545' : '#5a6372');
     if (c.on) { g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.6 + 0.2 * Math.sin(t * 4); g.drawImage(AS.glowY, x - 6, G - 36, 26, 26); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
   }
   drawFlagPole(cam, t);
@@ -887,8 +927,8 @@ function drawItems(cam, t) {
   for (const it of L.items) {
     if (it.got) continue; const x = it.x - cam; if (x < -20 || x > W + 20) continue;
     const bob = Math.sin(t * 3 + it.x * 0.07) * 1.6;
-    if (it.t === 'coin') { const s = 17 + Math.sin(t * 5 + it.x) * 1.2; g.save(); g.translate(x, it.y + bob); g.rotate(Math.sin(t * 2.4 + it.x * 0.05) * 0.18); g.drawImage(AS.boltC, -s / 2, -s / 2, s, s); g.restore(); }
-    else if (it.t === 'shell') { const s = 27 + Math.sin(t * 4) * 2; g.save(); g.translate(x, it.y + bob); g.rotate(Math.sin(t * 1.6) * 0.15); g.drawImage(AS.megaC, -s / 2, -s / 2, s, s); g.restore(); }
+    if (it.t === 'coin') { const s = 17 + Math.sin(t * 5 + it.x) * 1.2; g.save(); g.translate(x, it.y + bob); g.rotate(Math.sin(t * 2.4 + it.x * 0.05) * 0.18); g.drawImage(AS.coinC, -s / 2, -s / 2, s, s); g.restore(); }
+    else if (it.t === 'shell') { const s = 22 + Math.sin(t * 4) * 1.6; g.save(); g.translate(x, it.y + bob); g.rotate(Math.sin(t * 1.6) * 0.15); g.drawImage(AS.shellC, -s / 2, -s / 2, s, s); g.restore(); }
     else { const s = 12 + Math.sin(t * 6) * 0.8; g.drawImage(AS.heart, x - s / 2, it.y + bob - s / 2, s, s); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.5; g.drawImage(AS.glowO, x - 11, it.y + bob - 11, 22, 22); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
   }
 }
@@ -951,13 +991,18 @@ function drawHUD(t) {
   // hearts and pickups
   glass(g, m, 58, Math.min(usable, 226), 34, 17);
   for (let i = 0; i < 3; i++) { const beat = P.hearts === 1 && i === 0 ? 1 + 0.12 * Math.sin(t * 9) : 1, s = 18 * beat; g.drawImage(i < P.hearts ? AS.heart : AS.heartE, m + 10 + i * 22 - (s - 18) / 2, 66 - (s - 18) / 2, s, s); }
-  g.drawImage(AS.boltC, m + 78, 60, 28, 28); g.font = '800 15px ' + FONT; g.fillStyle = '#fff'; g.fillText('x' + Gm.coins, m + 104, 80);
-  const mx = m + 104 + g.measureText('x' + Gm.coins).width + 8; g.drawImage(AS.megaC, mx, 59, 30, 30); g.fillText('x' + Gm.shells, mx + 28, 80);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.drawImage(AS.coinC, m + 78, 60, 28, 28); g.font = '800 15px ' + FONT; g.fillStyle = '#fff'; g.fillText('x' + Gm.coins, m + 104, 80);
+  const mx = m + 104 + g.measureText('x' + Gm.coins).width + 8; g.drawImage(AS.shellC, mx, 59, 30, 30); g.fillText('x' + Gm.shells, mx + 28, 80);
+  if (HEAD) {
+    const hx = m + 136 + 86 + 8, hy = 14, hs = 34;
+    g.drawImage(HEAD, hx, hy, hs, hs);
+  }
   // progress
   const bx = m + 4, by = 104, bw = usable - 4, prog = clamp(P.x / L.flagX, 0, 1);
   rr(g, bx, by, bw, 7, 3.5); g.fillStyle = 'rgba(255,255,255,.2)'; g.fill();
   if (prog > 0.002) { rr(g, bx, by, Math.max(7, bw * prog), 7, 3.5); g.fillStyle = vgrad(g, by, by + 7, [[0, '#fff7a8'], [1, SC.accent]]); g.fill(); }
-  g.globalCompositeOperation = 'lighter'; g.drawImage(AS.boltC, bx + bw * prog - 15, by - 12, 30, 30); g.globalCompositeOperation = 'source-over';
+  g.globalCompositeOperation = 'lighter'; g.drawImage(AS.coinC, bx + bw * prog - 15, by - 12, 30, 30); g.globalCompositeOperation = 'source-over';
   g.fillStyle = '#fff'; g.beginPath(); g.arc(bx + bw, by + 3.5, 5, 0, 7); g.fill(); g.fillStyle = SC.board; g.beginPath(); g.arc(bx + bw, by + 3.5, 2.5, 0, 7); g.fill();
   if (Gm.bannerT > 0 && Gm.state === 'play') {
     const u = clamp(1 - Gm.bannerT / 1.4, 0, 1), sc = 0.8 + Math.min(1, u * 5) * 0.2 + u * 0.1, a = u < 0.6 ? 1 : 1 - (u - 0.6) / 0.4;
@@ -1095,28 +1140,50 @@ $('btnWinMenu').addEventListener('click', toMenu); $('btnOverMenu').addEventList
 $('modeAuto').addEventListener('click', () => setMode('auto')); $('modeManual').addEventListener('click', () => setMode('manual'));
 
 /* ---------- photo head (stays on the device) ---------- */
+const HEAD_WORLD = 30; // bobblehead size in world units (hitbox is unchanged)
+function photoRes() { return clamp(Math.round(256 * Math.min(3, window.devicePixelRatio || 1)), 256, 512); }
 function buildHead() {
   if (!photo) { HEAD = null; return; }
-  const R = 160, out = mk(R, R), g = out.getContext('2d'); g.imageSmoothingQuality = 'high';
-  g.save(); g.beginPath(); g.arc(R / 2, R / 2, R / 2 - 6, 0, Math.PI * 2); g.clip(); g.drawImage(photo, 6, 6, R - 12, R - 12); g.restore();
-  g.lineWidth = 7; g.strokeStyle = '#ffffff'; g.beginPath(); g.arc(R / 2, R / 2, R / 2 - 4, 0, Math.PI * 2); g.stroke();
+  const R = Math.max(photoRes(), photo.width || 0, photo.height || 0);
+  const out = mk(R, R), g = out.getContext('2d');
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  const pad = Math.max(6, Math.round(R * 0.06));
+  g.save(); g.beginPath(); g.arc(R / 2, R / 2, R / 2 - pad, 0, Math.PI * 2); g.clip();
+  g.drawImage(photo, pad, pad, R - pad * 2, R - pad * 2); g.restore();
+  // clean white ring plus a thin dark edge so the face pops against the sky
+  g.lineWidth = Math.max(5, R * 0.045); g.strokeStyle = '#ffffff';
+  g.beginPath(); g.arc(R / 2, R / 2, R / 2 - g.lineWidth * 0.7, 0, Math.PI * 2); g.stroke();
+  g.lineWidth = Math.max(2, R * 0.016); g.strokeStyle = 'rgba(20,16,50,.85)';
+  g.beginPath(); g.arc(R / 2, R / 2, R / 2 - Math.max(3, R * 0.026), 0, Math.PI * 2); g.stroke();
   HEAD = out;
+}
+function drawPhotoHead(g, hx, hy) {
+  if (!HEAD) return;
+  const HS = HEAD_WORLD;
+  g.save();
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.fillStyle = 'rgba(20,16,50,.28)'; g.beginPath(); g.ellipse(hx, hy + HS * 0.4, HS * 0.34, HS * 0.1, 0, 0, 7); g.fill();
+  g.drawImage(HEAD, hx - HS / 2, hy - HS / 2, HS, HS);
+  g.restore();
 }
 function drawAvatar(canvas, scale) {
   const g = canvas.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, canvas.width, canvas.height); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  const worldW = canvas.width / scale, worldH = canvas.height / scale;
+  // leave room above the body for the larger photo head
+  const charW = Math.max(18, HEAD_WORLD), charH = 26 + Math.max(0, (HEAD_WORLD - 18) * 0.55);
   g.setTransform(scale, 0, 0, scale, 0, 0);
-  const gl = glowSpriteSafe(); if (gl) { g.globalAlpha = 0.5; g.drawImage(gl, -2, 8, canvas.width / scale + 4, canvas.height / scale * 0.8); g.globalAlpha = 1; }
-  drawChar(g, (canvas.width / scale - 18) / 2, canvas.height / scale - 28, { face: 1, phase: 0, idle: tNow, run: false });
+  const gl = glowSpriteSafe(); if (gl) { g.globalAlpha = 0.5; g.drawImage(gl, -2, 8, worldW + 4, worldH * 0.8); g.globalAlpha = 1; }
+  drawChar(g, (worldW - 18) / 2, worldH - 28, { face: 1, phase: 0, idle: tNow, run: false });
   g.setTransform(1, 0, 0, 1, 0, 0);
 }
 function glowSpriteSafe() { return AS.glowW || null; }
 function refreshAvatar() {
-  drawAvatar($('avatarPrev'), 8); $('btnRemove').hidden = !photo;
+  const av = $('avatarPrev'); drawAvatar(av, av.width / 28); $('btnRemove').hidden = !photo;
   $('btnFace').textContent = photo ? 'Change your face' : 'Add your face';
 }
 function loadSavedPhoto() {
   const d = store.get('photo'); if (!d) return;
-  const img = new Image(); img.onload = () => { const c = mk(96, 96); c.getContext('2d').drawImage(img, 0, 0, 96, 96); photo = c; remember = true; buildHead(); refreshAvatar(); };
+  const img = new Image(); img.onload = () => { const R = photoRes(), c = mk(R, R), g = c.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, R, R); photo = c; remember = true; buildHead(); refreshAvatar(); };
   img.src = d;
 }
 function removePhoto() { photo = null; remember = false; store.del('photo'); buildHead(); refreshAvatar(); }
@@ -1151,14 +1218,15 @@ function cropDraw() {
   if (!cropRaf) cropRaf = requestAnimationFrame(() => { cropRaf = 0; cropPreview(); });
 }
 function cropOutput() {
-  const im = crop.img, out = mk(96, 96), g = out.getContext('2d'); g.imageSmoothingQuality = 'high';
+  const R = photoRes(), im = crop.img, out = mk(R, R), g = out.getContext('2d');
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   const sx = (CS / 2 - CR - crop.ox) / crop.scale, sy = (CS / 2 - CR - crop.oy) / crop.scale, sw = 2 * CR / crop.scale;
-  g.drawImage(im, sx, sy, sw, sw, 0, 0, 96, 96); return out;
+  g.drawImage(im, sx, sy, sw, sw, 0, 0, R, R); return out;
 }
 function cropPreview() {
   if (!crop.img) return;
   const keepPhoto = photo, keepHead = HEAD;
-  photo = cropOutput(); buildHead(); drawAvatar($('cropPrev'), 4);
+  photo = cropOutput(); buildHead(); const cp = $('cropPrev'); drawAvatar(cp, cp.width / 28);
   photo = keepPhoto; HEAD = keepHead;
 }
 function openCrop(file) {
@@ -1177,7 +1245,7 @@ function cancelCrop() { $('cropModal').hidden = true; crop.img = null; }
 function applyCrop() {
   if (!crop.img) return;
   photo = cropOutput(); remember = $('optRemember').checked;
-  if (remember) { try { store.set('photo', photo.toDataURL('image/jpeg', 0.88)); } catch (e) {} } else store.del('photo');
+  if (remember) { try { store.set('photo', photo.toDataURL('image/jpeg', 0.92)); } catch (e) {} } else store.del('photo');
   buildHead(); refreshAvatar(); cancelCrop();
 }
 ['fileCam', 'fileGal'].forEach((id) => $(id).addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; openCrop(f); }));
@@ -1212,13 +1280,13 @@ function frame(now) {
 /* ---------- init ---------- */
 function init() {
   buildAssets();
-  document.title = CFG.gameTitle + ' | ' + SP_.name + ' edition';
+  document.title = CFG.gameTitle + ' | ' + (CFG.studio && CFG.studio.name ? CFG.studio.name : 'Bellio Gulf Coast');
   const rs = document.documentElement.style;
   rs.setProperty('--btn', COL.button); rs.setProperty('--btnText', COL.buttonText); rs.setProperty('--panel', COL.panel); rs.setProperty('--panelText', COL.panelText); rs.setProperty('--accent', COL.accent);
   rs.setProperty('--board', SC.board); rs.setProperty('--blue', SC.accent2);
   $('gameTitle').textContent = CFG.gameTitle;
   $('tagline').textContent = CFG.tagline || '';
-  const lg = $('brandLogo'); lg.src = AS.brandImg; lg.alt = SP_.name + ' sign'; lg.hidden = false;
+  const lg = $('brandLogo'); lg.src = AS.brandImg; lg.alt = (SP_.name || 'Your Business Here') + ' sign'; lg.hidden = false;
   $('poweredBy').textContent = SP_.poweredBy || '';
   $('photoNote').textContent = CFG.photoNote;
   $('startDisclaimer').textContent = CFG.disclaimer; $('footText').textContent = CFG.disclaimer;

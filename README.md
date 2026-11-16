@@ -25,7 +25,7 @@ Files: **one image** of the printed piece (JPG/PNG, flat, ideally the same file 
 node scripts/add-client.js <slug> <image> <video> --name "Client Name" [--link https://client.site]
 git add -A && git commit -m "add <slug>" && git push      # Pages redeploys in ~1 min
 ```
-Slug: lowercase letters/digits/hyphens (e.g. `haid-electric`). Then print `docs/qr/<slug>.png` on the piece (≥2 cm / 0.8 in).
+Slug: lowercase letters/digits/hyphens (e.g. `acme-shop`). Then print `docs/qr/<slug>.png` on the piece (≥2 cm / 0.8 in).
 Rebuild everything: `npm run build` (`-- --force` to recompile all .mind files). Change domain: edit `config.json` then `npm run build` (QRs regenerate).
 
 ## Deploy to GitHub Pages (free)
@@ -98,4 +98,4 @@ Set `"publish": false` in any client.json to keep it out of `docs/`.
 
 `docs/beach-runner/` is a white-label retro side-scroller that works as a normal web page (scan the QR, play). Edit `docs/beach-runner/config.js` to rebrand it. See `docs/beach-runner/README.md`.
 
-`docs/beach-runner-haid/` is the modern-look edition with a local sponsor scene (storefront, van, billboards) driven entirely by `config.js`. It is shown with Haid Electric as a sample and is not an official Haid Electric game. See `docs/beach-runner-haid/README.md`.
+`docs/beach-runner-modern/` is the modern-look edition with a Gulf Coast boardwalk scene (storefronts, a van, billboards) driven entirely by `config.js`. The sample uses placeholder signs such as "Your Business Here". See `docs/beach-runner-modern/README.md`. The old `/beach-runner-haid/` path redirects there.

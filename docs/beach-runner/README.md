@@ -27,8 +27,9 @@ Every key in `config.js` is optional. Anything you leave out uses the default.
 ## Photo head
 
 "Add your face" opens the camera (selfie) or the gallery, then crops the photo to a circle (drag and zoom, or Auto center).
+The face is stored at a high resolution (256 to 512 pixels, based on the screen) and drawn large and sharp, with a clean outline, so it is easy to recognize while you play. A small face badge also appears in the HUD.
 The photo is read on the device only. A Content Security Policy in `index.html` blocks all network requests from the page (`connect-src 'none'`),
-so the game cannot upload it. "Remember on this phone" saves a small 96x96 copy in localStorage. "Remove photo" deletes it.
+so the game cannot upload it. "Remember on this phone" saves a compressed copy in localStorage. "Remove photo" deletes it.
 
 ## Files
 

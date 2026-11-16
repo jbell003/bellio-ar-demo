@@ -97,3 +97,5 @@ Set `"publish": false` in any client.json to keep it out of `docs/`.
 ## Beach Runner (retro game, no AR needed)
 
 `docs/beach-runner/` is a white-label retro side-scroller that works as a normal web page (scan the QR, play). Edit `docs/beach-runner/config.js` to rebrand it. See `docs/beach-runner/README.md`.
+
+`docs/beach-runner-haid/` is the modern-look edition with a local sponsor scene (storefront, van, billboards) driven entirely by `config.js`. It is shown with Haid Electric as a sample and is not an official Haid Electric game. See `docs/beach-runner-haid/README.md`.

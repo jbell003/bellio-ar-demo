@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1b1346">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'; media-src 'self' blob:; form-action 'none'; base-uri 'none'">
+<meta name="description" content="Beach Runner, a free retro side-scrolling game. Optionally put your own face on the runner. Your photo never leaves your phone.">
+<title>Beach Runner</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="game" width="256" height="144" aria-label="Beach Runner game"></canvas>
+
+    <div id="hudBtns">
+      <button id="btnPause" class="hbtn" type="button" aria-label="Pause" tabindex="-1" hidden>
+        <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><rect x="3" y="2" width="4" height="12" fill="currentColor"/><rect x="9" y="2" width="4" height="12" fill="currentColor"/></svg>
+      </button>
+      <button id="btnMute" class="hbtn" type="button" aria-label="Mute sound" aria-pressed="false" tabindex="-1">
+        <svg id="icoSound" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11 5q2 3 0 6M13 3q4 5 0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <svg id="icoMuted" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" hidden><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11 5l4 6M15 5l-4 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+    </div>
+
+    <!-- START SCREEN -->
+    <div id="startScreen" class="screen">
+      <div class="panel">
+        <img id="brandLogo" alt="" hidden>
+        <h1 id="gameTitle">BEACH RUNNER</h1>
+        <p id="tagline" class="sub"></p>
+        <div class="avatarRow">
+          <canvas id="avatarPrev" width="72" height="104" aria-label="Your character"></canvas>
+          <div class="avatarBtns">
+            <button id="btnPlay" class="btn big" type="button">PLAY</button>
+            <button id="btnFace" class="btn alt" type="button">Add your face</button>
+            <div id="faceChoice" class="faceChoice" hidden>
+              <label class="btn small" for="fileCam">Take a selfie</label>
+              <label class="btn small" for="fileGal">Choose a photo</label>
+            </div>
+            <button id="btnRemove" class="btn ghost" type="button" hidden>Remove photo</button>
+          </div>
+        </div>
+        <p id="photoNote" class="note"></p>
+        <div class="seg" role="group" aria-label="Controls">
+          <span>Controls</span>
+          <button id="modeAuto" type="button">Auto-run</button>
+          <button id="modeManual" type="button">Manual</button>
+        </div>
+        <p id="helpText" class="help"></p>
+        <a id="startCta" class="link" target="_blank" rel="noopener"></a>
+      </div>
+    </div>
+
+    <!-- PAUSE -->
+    <div id="pauseScreen" class="screen dim" hidden>
+      <div class="panel small">
+        <h2>PAUSED</h2>
+        <button id="btnResume" class="btn big" type="button">RESUME</button>
+        <button id="btnQuit" class="btn ghost" type="button">Quit to menu</button>
+      </div>
+    </div>
+
+    <!-- WIN -->
+    <div id="winScreen" class="screen dim" hidden>
+      <div class="panel">
+        <h2 class="win">YOU MADE IT!</h2>
+        <p class="sub" id="winSub"></p>
+        <table class="stats" id="winStats"></table>
+        <button id="btnWinAgain" class="btn big" type="button">PLAY AGAIN</button>
+        <div class="cta">
+          <p id="winCtaHead"></p>
+          <a id="winCta" class="btn alt" target="_blank" rel="noopener"></a>
+        </div>
+        <button id="btnWinMenu" class="btn ghost" type="button">Back to menu</button>
+      </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="overScreen" class="screen dim" hidden>
+      <div class="panel">
+        <h2 class="lose">GAME OVER</h2>
+        <p class="sub" id="overSub"></p>
+        <table class="stats" id="overStats"></table>
+        <button id="btnOverAgain" class="btn big" type="button">TRY AGAIN</button>
+        <div class="cta">
+          <p id="overCtaHead"></p>
+          <a id="overCta" class="btn alt" target="_blank" rel="noopener"></a>
+        </div>
+        <button id="btnOverMenu" class="btn ghost" type="button">Back to menu</button>
+      </div>
+    </div>
+
+    <!-- CROP -->
+    <div id="cropModal" class="screen dim" hidden role="dialog" aria-modal="true" aria-label="Crop your photo">
+      <div class="panel crop">
+        <h2>Fit your face</h2>
+        <p class="sub">Drag to move. Pinch or use the slider to zoom.</p>
+        <div class="cropWrap"><canvas id="cropCanvas" width="300" height="300"></canvas></div>
+        <div class="zoomRow">
+          <label for="zoom">Zoom</label>
+          <input id="zoom" type="range" min="100" max="400" value="100">
+          <button id="btnAuto" class="btn small" type="button">Auto center</button>
+        </div>
+        <div class="cropOpts">
+          <label class="chk"><input id="optPixel" type="checkbox" checked> Pixel look</label>
+          <label class="chk"><input id="optRemember" type="checkbox"> Remember on this phone</label>
+        </div>
+        <div class="cropPrev"><canvas id="cropPrev" width="54" height="78" aria-label="Preview"></canvas><span id="cropNote" class="note"></span></div>
+        <p id="cropErr" class="err" hidden></p>
+        <div class="btnRow">
+          <button id="btnCropUse" class="btn big" type="button">USE THIS</button>
+          <button id="btnCropCancel" class="btn ghost" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div id="padLeft">
+      <button id="btnLeft" class="cbtn" type="button" aria-label="Move left" tabindex="-1"><i class="tri l"></i></button>
+      <button id="btnRight" class="cbtn" type="button" aria-label="Move right" tabindex="-1"><i class="tri r"></i></button>
+    </div>
+    <div id="padRight">
+      <button id="btnJump" class="cbtn jump" type="button" aria-label="Jump" tabindex="-1"><span>JUMP</span></button>
+    </div>
+  </div>
+</div>
+
+<input id="fileCam" type="file" accept="image/*" capture="user" hidden>
+<input id="fileGal" type="file" accept="image/*" hidden>
+
+<script src="config.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

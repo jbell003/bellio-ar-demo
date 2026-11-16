@@ -93,3 +93,7 @@ Set `"publish": false` in any client.json to keep it out of `docs/`.
 - Never put a background on `html`/`body` in the viewer: MindAR draws the camera `<video>` at `z-index:-2`, and an opaque body background hides it (this was the original black-screen bug).
 - Open the page in **Safari (iPhone) or Chrome (Android)**. Built-in browsers in Instagram/Facebook/some QR-scanner apps often block the camera; the page detects these and says so.
 - Add `?debug=1` to the URL for an on-screen log.
+
+## Beach Runner (retro game, no AR needed)
+
+`docs/beach-runner/` is a white-label retro side-scroller that works as a normal web page (scan the QR, play). Edit `docs/beach-runner/config.js` to rebrand it. See `docs/beach-runner/README.md`.

@@ -1,0 +1,196 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><title>AR Guest Guide - Sample Check-in</title>
+<link rel="icon" href="data:,">
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>
+/* NOTE: no background on html/body  -  MindAR puts the camera <video> at z-index:-2, and an opaque body background paints over it (black screen). */
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,sans-serif}
+.ov{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;background:rgba(0,20,40,.94);color:#fff;text-align:center;padding:24px;box-sizing:border-box}
+.ov h2{margin:0 0 4px;font-size:24px}
+.ov p.lead{margin:0;max-width:420px;font-size:15px;line-height:1.4;opacity:.95}
+.ov button{font-size:18px;padding:14px 26px;border-radius:14px;border:0;background:#ffb703;color:#023047;font-weight:700;cursor:pointer}
+.ov button.ghost{background:transparent;color:#fff;border:2px solid #ffb703}
+.hide{display:none!important}
+#status{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:7;background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:14px;font-size:13px}
+#hint{position:fixed;bottom:16px;width:100%;text-align:center;color:#fff;font-size:15px;z-index:5;text-shadow:0 0 4px #000}
+#snd,#link{position:fixed;top:48px;z-index:6;padding:8px 14px;border-radius:20px;border:0;background:rgba(255,255,255,.9);font-weight:600;text-decoration:none;color:#000}
+#snd{left:12px}#link{right:12px}
+#stepBadge{position:fixed;top:48px;left:50%;transform:translateX(-50%);z-index:6;padding:8px 16px;border-radius:20px;background:rgba(2,48,71,.9);color:#ffb703;font-weight:700;font-size:14px}
+#dbg{position:fixed;left:0;right:0;bottom:0;max-height:40%;overflow:auto;z-index:20;background:rgba(0,0,0,.8);color:#0f0;font:11px monospace;white-space:pre-wrap;padding:6px}
+.sample{font-size:12px;opacity:.8;margin-top:4px}
+.spots{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(420px,100%);margin:8px 0}
+.spot{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:10px 12px;border-radius:12px;border:0;background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:14px;cursor:default}
+.spot b{font-size:15px;color:#ffb703}
+.spot span{font-weight:500;font-size:12px;opacity:.85;margin-top:2px}
+#preview .spot{cursor:pointer;background:rgba(255,255,255,.12)}
+#preview .spot.active{background:#ffb703;color:#023047}
+#preview .spot.active b,#preview .spot.active span{color:#023047}
+#prevVid{width:min(420px,100%);max-height:36vh;border-radius:12px;background:#000}
+#prevCap{margin:0;font-size:14px;max-width:420px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+</style>
+</head><body>
+<div id="start" class="ov">
+  <h2>AR Guest Guide</h2>
+  <p class="lead">Scan a printed Welcome sign to watch a short check-in video. No app needed.</p>
+  <div class="spots" id="startSpots"></div>
+  <div class="actions">
+    <button id="go">Tap to start</button>
+    <button id="previewBtn" class="ghost">No phone? Tap to preview</button>
+  </div>
+  <small>Allow camera access, then point at any sign on the printed sheet.</small>
+  <div class="sample">Sample demo. The wording below is placeholder only. Swap in your rental's own signs and videos.</div>
+</div>
+<div id="preview" class="ov hide">
+  <h2>Sample guest guide</h2>
+  <p class="lead">Tap a sign to preview its video. This works on a computer, no camera needed.</p>
+  <div class="spots" id="prevSpots"></div>
+  <video id="prevVid" controls playsinline webkit-playsinline></video>
+  <p id="prevCap" class="sample">Sample wording only.</p>
+  <div class="actions">
+    <button id="prevBack" class="ghost">Back</button>
+    <button id="prevStart">Start camera</button>
+  </div>
+</div>
+<div id="err" class="ov hide"><h2>Camera problem</h2><p id="errmsg"></p><button id="retry">Try again</button><button id="errPreview" class="ghost">No phone? Tap to preview</button></div>
+<div id="status" class="hide"></div>
+<div id="hint" class="hide">Point at any sign on the printed sheet</div>
+<div id="stepBadge" class="hide"></div>
+<button id="snd" class="hide">Mute off. Tap for sound</button>
+<a id="link" class="hide" href="https://belliogulfcoast.com" target="_blank" rel="noopener">Get an AR Guest Guide for your rental</a>
+<a-scene id="scene" mindar-image="imageTargetSrc: target.mind; autoStart: false; uiScanning: no; uiLoading: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001" color-space="sRGB" renderer="colorManagement: true; alpha: true" background="transparent: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
+ <a-assets timeout="8000">
+  <video id="vid0" src="step1.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+  <video id="vid1" src="step2.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+  <video id="vid2" src="step3.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+  <video id="vid3" src="step4.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+ </a-assets>
+ <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+ <a-entity id="target0" mindar-image-target="targetIndex: 0">
+  <a-video src="#vid0" width="1" height="1.0000" position="0 0 0.01"></a-video>
+ </a-entity>
+ <a-entity id="target1" mindar-image-target="targetIndex: 1">
+  <a-video src="#vid1" width="1" height="1.0000" position="0 0 0.01"></a-video>
+ </a-entity>
+ <a-entity id="target2" mindar-image-target="targetIndex: 2">
+  <a-video src="#vid2" width="1" height="1.0000" position="0 0 0.01"></a-video>
+ </a-entity>
+ <a-entity id="target3" mindar-image-target="targetIndex: 3">
+  <a-video src="#vid3" width="1" height="1.0000" position="0 0 0.01"></a-video>
+ </a-entity>
+</a-scene>
+<script>
+const $=id=>document.getElementById(id), scene=$('scene');
+const STEPS = [
+  {label:'Check-in', caption:'Welcome! Door code is on your booking message', src:'step1.mp4'},
+  {label:'WiFi', caption:'WiFi: scan the router card', src:'step2.mp4'},
+  {label:'House rules', caption:'Quiet hours 10pm', src:'step3.mp4'},
+  {label:'Pool / beach path', caption:'Beach path: out the back gate, turn left', src:'step4.mp4'}
+];
+const vids = STEPS.map((_,i)=>$('vid'+i));
+let activeVid = null;
+const DEBUG=/[?&]debug=1/.test(location.search);
+const dbg=(...a)=>{if(!DEBUG)return;let d=$('dbg');if(!d){d=document.createElement('div');d.id='dbg';document.body.appendChild(d);}d.textContent+=a.join(' ')+'\n';d.scrollTop=1e9;};
+if(DEBUG){['log','warn','error'].forEach(k=>{const o=console[k];console[k]=(...a)=>{dbg(k+':',...a.map(String));o.apply(console,a);};});
+ addEventListener('error',e=>dbg('ERROR:',e.message));addEventListener('unhandledrejection',e=>dbg('REJECT:',e.reason));}
+const status=s=>{const e=$('status');e.textContent=s;e.classList.toggle('hide',!s);dbg('status:',s);};
+const ua=navigator.userAgent, inApp=/FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|LinkedInApp|Twitter|GSA\/|; wv\)/i.test(ua);
+function fail(msg){status('');$('errmsg').innerHTML=msg;$('err').classList.remove('hide');}
+const openMsg='Open this page in <b>Safari</b> (iPhone) or <b>Chrome</b> (Android): tap the menu or Share, then Open in browser.';
+function camHelp(e){const n=(e&&e.name)||'';
+ if(!window.isSecureContext)return 'This page must be opened over https://.';
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return 'This browser cannot use the camera. '+openMsg;
+ if(n==='NotAllowedError'||n==='SecurityError')return 'Camera permission was denied. Allow camera for this site (iPhone: Settings, Safari, Camera, Allow; Android: tap the lock icon, then Permissions) and try again.'+(inApp?'<br><br>'+openMsg:'');
+ if(n==='NotFoundError'||n==='OverconstrainedError')return 'No camera found on this device.';
+ if(n==='NotReadableError')return 'The camera is in use by another app. Close it and try again.';
+ return 'Could not start the camera'+(n?' ('+n+')':'')+'. '+(inApp?openMsg:'Try reloading, or open in Safari or Chrome.');}
+function fillSpots(wrap, clickable){
+  wrap.innerHTML='';
+  STEPS.forEach((step,i)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='spot';
+    b.dataset.i=i;
+    b.innerHTML='<b>'+step.label+'</b><span>'+step.caption+'</span>';
+    if(clickable) b.onclick=()=>playPreview(i);
+    wrap.appendChild(b);
+  });
+}
+fillSpots($('startSpots'), false);
+fillSpots($('prevSpots'), true);
+
+function showPreview(){
+  try{scene.systems['mindar-image-system']&&scene.systems['mindar-image-system'].stop();}catch(e){}
+  pauseAll();
+  $('start').classList.add('hide');
+  $('err').classList.add('hide');
+  $('hint').classList.add('hide');
+  $('stepBadge').classList.add('hide');
+  $('snd').classList.add('hide');
+  $('preview').classList.remove('hide');
+  playPreview(0);
+}
+function hidePreview(){
+  const v=$('prevVid');
+  try{v.pause();}catch(e){}
+  v.removeAttribute('src');
+  v.load();
+  $('preview').classList.add('hide');
+}
+function playPreview(i){
+  const step=STEPS[i], v=$('prevVid');
+  [...$('prevSpots').children].forEach((el,j)=>el.classList.toggle('active', j===i));
+  $('prevCap').textContent=step.label+' - '+step.caption+' (sample wording only)';
+  if(v.getAttribute('src')!==step.src){v.src=step.src;}
+  v.muted=false;
+  v.play().catch(()=>{v.muted=true;return v.play();}).catch(()=>{});
+}
+$('previewBtn').onclick=showPreview;
+$('errPreview').onclick=showPreview;
+$('prevBack').onclick=()=>{hidePreview();$('start').classList.remove('hide');};
+$('prevStart').onclick=()=>{hidePreview();start();};
+
+let ready=false; scene.addEventListener('loaded',()=>{ready=true;dbg('scene loaded');});
+scene.addEventListener('arReady',()=>{status('Point at a Welcome sign');$('hint').classList.remove('hide');setTimeout(()=>status(''),2500);});
+scene.addEventListener('arError',e=>{dbg('arError',JSON.stringify(e.detail));fail(camHelp(window._camErr));});
+async function start(){
+ $('start').classList.add('hide');$('err').classList.add('hide');$('preview').classList.add('hide');status('Starting camera...');
+ if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return fail(camHelp());
+ try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});s.getTracks().forEach(x=>x.stop());}
+ catch(e){window._camErr=e;dbg('gUM',e.name,e.message);return fail(camHelp(e));}
+ for(const v of vids){v.muted=false;try{await v.play();v.pause();}catch(e){v.muted=true;}}
+ if(!ready)await new Promise(r=>scene.addEventListener('loaded',r,{once:true}));
+ status('Loading AR...');
+ try{await scene.systems['mindar-image-system'].start();}catch(e){dbg('start',e);return fail(camHelp(e));}
+}
+$('go').onclick=start;
+$('retry').onclick=()=>{try{scene.systems['mindar-image-system'].stop();}catch(e){}start();};
+const showSnd=()=>$('snd').classList.toggle('hide',!activeVid||!activeVid.muted);
+$('snd').onclick=()=>{if(!activeVid)return;activeVid.muted=false;activeVid.play().catch(()=>{});showSnd();};
+function pauseAll(){vids.forEach(v=>{try{v.pause();}catch(e){}});}
+STEPS.forEach((step,i)=>{
+  const t=$('target'+i);
+  if(!t)return;
+  t.addEventListener('targetFound',()=>{
+    $('hint').classList.add('hide');
+    if($('link').getAttribute('href'))$('link').classList.remove('hide');
+    const badge=$('stepBadge');
+    badge.textContent=step.label+(step.caption?(' - '+step.caption):'');
+    badge.classList.remove('hide');
+    pauseAll();
+    activeVid=vids[i];
+    activeVid.play().catch(()=>{activeVid.muted=true;return activeVid.play();}).catch(()=>{}).finally(showSnd);
+    status(step.label);
+    setTimeout(()=>status(''),2000);
+  });
+  t.addEventListener('targetLost',()=>{
+    if(activeVid===vids[i]){vids[i].pause();activeVid=null;$('snd').classList.add('hide');}
+    $('hint').classList.remove('hide');
+    $('stepBadge').classList.add('hide');
+  });
+});
+if(inApp)dbg('in-app browser detected');
+if(/[?&]preview=1/.test(location.search))showPreview();
+</script>
+</body></html>

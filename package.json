@@ -8,7 +8,8 @@
     "add-client": "node scripts/add-client.js",
     "serve": "npx --yes serve docs -l 3000",
     "add-instructions": "node scripts/add-instructions.js",
-    "make-assembly-demo": "node scripts/make-assembly-demo.js"
+    "make-assembly-demo": "node scripts/make-assembly-demo.js",
+    "make-rental-checkin-demo": "node scripts/make-rental-checkin-demo.js"
   },
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",

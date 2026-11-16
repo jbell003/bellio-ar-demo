@@ -1,0 +1,28 @@
+{
+  "targets": [
+    {
+      "index": 0,
+      "matchingPoints": 2717,
+      "trackingPoints": 56,
+      "size": "1000x1000"
+    },
+    {
+      "index": 1,
+      "matchingPoints": 2239,
+      "trackingPoints": 53,
+      "size": "1000x1000"
+    },
+    {
+      "index": 2,
+      "matchingPoints": 1961,
+      "trackingPoints": 52,
+      "size": "1000x1000"
+    },
+    {
+      "index": 3,
+      "matchingPoints": 2333,
+      "trackingPoints": 63,
+      "size": "1000x1000"
+    }
+  ]
+}

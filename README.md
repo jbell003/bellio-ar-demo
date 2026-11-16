@@ -67,6 +67,8 @@ docs/qr/<slug>.png
 
 Sample demo: **Build a Birdhouse** (`assembly-demo`). Regenerate its assets with `npm run make-assembly-demo` then `node scripts/build.js assembly-demo`. Printable sheet: `docs/assembly-demo/instruction-sheet.pdf` (and `.png`).
 
+Sample rental demo: **AR Guest Guide** (`rental-checkin-demo`). Scan a printed Welcome / guest-guide sign to play a short check-in video. Four sample spots: Check-in, WiFi, House rules, and Pool / beach path. Regenerate with `npm run make-rental-checkin-demo`. Printable sheet: `docs/rental-checkin-demo/guest-guide-sheet.pdf` (and `.png`). The page has a **No phone? Tap to preview** fallback so the sample videos play on a computer. Live: `<baseUrl>/rental-checkin-demo/`.
+
 Tips for step pictures: each one must look different from the others (MindAR can confuse similar images). Busy, high-contrast detail; trackingPoints 40+ per step (see `docs/<slug>/stats.json`). Keep videos short (10-30 s), H.264 MP4, same aspect ratio as the picture when you can.
 
 ## Mini-game clients (`type: "game"`)

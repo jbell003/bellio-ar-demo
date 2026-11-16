@@ -1,0 +1,33 @@
+{
+  "name": "AR Guest Guide - Sample Check-in",
+  "type": "instructions",
+  "hint": "Point at any sign on the printed sheet",
+  "link": "https://belliogulfcoast.com",
+  "linkText": "Get an AR Guest Guide for your rental",
+  "steps": [
+    {
+      "label": "Check-in",
+      "caption": "Welcome! Door code is on your booking message",
+      "image": "step1.jpg",
+      "video": "step1.mp4"
+    },
+    {
+      "label": "WiFi",
+      "caption": "WiFi: scan the router card",
+      "image": "step2.jpg",
+      "video": "step2.mp4"
+    },
+    {
+      "label": "House rules",
+      "caption": "Quiet hours 10pm",
+      "image": "step3.jpg",
+      "video": "step3.mp4"
+    },
+    {
+      "label": "Pool / beach path",
+      "caption": "Beach path: out the back gate, turn left",
+      "image": "step4.jpg",
+      "video": "step4.mp4"
+    }
+  ]
+}

@@ -20,12 +20,12 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,
 #dbg{position:fixed;left:0;right:0;bottom:0;max-height:40%;overflow:auto;z-index:20;background:rgba(0,0,0,.8);color:#0f0;font:11px monospace;white-space:pre-wrap;padding:6px}
 .sample{font-size:12px;opacity:.8;margin-top:4px}
 .spots{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(420px,100%);margin:8px 0}
-.spot{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:10px 12px;border-radius:12px;border:0;background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:14px;cursor:default}
-.spot b{font-size:15px;color:#ffb703}
-.spot span{font-weight:500;font-size:12px;opacity:.85;margin-top:2px}
-#preview .spot{cursor:pointer;background:rgba(255,255,255,.12)}
-#preview .spot.active{background:#ffb703;color:#023047}
-#preview .spot.active b,#preview .spot.active span{color:#023047}
+.ov button.spot{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:10px 12px;border-radius:12px;border:0;background:rgba(255,255,255,.12);color:#fff;font-weight:700;font-size:14px;cursor:default}
+.ov button.spot b{font-size:15px;color:#ffb703}
+.ov button.spot span{font-weight:500;font-size:12px;opacity:.9;margin-top:2px;color:#fff}
+#preview .ov button.spot, .ov#preview button.spot{cursor:pointer;background:rgba(255,255,255,.12)}
+.ov#preview button.spot.active{background:#ffb703;color:#023047}
+.ov#preview button.spot.active b,.ov#preview button.spot.active span{color:#023047}
 #prevVid{width:min(420px,100%);max-height:36vh;border-radius:12px;background:#000}
 #prevCap{margin:0;font-size:14px;max-width:420px}
 .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
@@ -40,7 +40,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,
     <button id="previewBtn" class="ghost">No phone? Tap to preview</button>
   </div>
   <small>Allow camera access, then point at any sign on the printed sheet.</small>
-  <div class="sample">Sample demo. The wording below is placeholder only. Swap in your rental's own signs and videos.</div>
+  <div class="sample">Sample demo. The wording on these signs is placeholder only. Swap in your rental's own signs and videos.</div>
 </div>
 <div id="preview" class="ov hide">
   <h2>Sample guest guide</h2>
